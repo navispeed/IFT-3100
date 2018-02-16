@@ -3,6 +3,7 @@ set(OF_MAIN_DIR /Users/greg/Downloads/of_v0.9.8_osx_release)
 project(ift-3100)
 include(includelist.cmake)
 
+#include_directories(/usr/include/c++/4.2.1 /Applications/Xcode.app/Contents/Developer/usr )
 
 #find_package(PkgConfig REQUIRED)
 #pkg_search_module(CAIRO REQUIRED cairo)

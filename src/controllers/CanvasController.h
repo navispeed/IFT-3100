@@ -12,16 +12,19 @@
 #include "../model/of2d/of2d.h"
 #include "../model/canvas/OfCanvas.h"
 
+#define LIST_CONTAIN_0_ELEMENT(cond, action) if (cond) {action; return;}
+#define DISTANCE_BTW_POINT(point1, point2) ((point1 > point2) ? point1 - point2 : point2 - point1);
 
 class CanvasController : public AController {
-
+    const ofColor defColor = ofColor(255, 255, 255);
 public:
     enum STATE : int {
         NONE = 127,
-        POINT = 112,
-        LINE = 108,
         CIRCLE = 99,
-        RECTANGLE = 114
+        LINE = 108,
+        POLYGONE = 112,
+        RECTANGLE = 114,
+        TRIANGLE = 116,
     };
     static const std::map<int, const char *> stateToString;
 
@@ -43,8 +46,11 @@ protected:
     void disableEvents() override;
 
 private:
-    std::shared_ptr<ofPoint> initialPoint = nullptr;
+    typedef std::function<void()> otherObjectDrawCall;
+    std::shared_ptr<ofVec2f> initialPoint = nullptr;
+    std::vector<ofVec2f> pointList = std::vector<ofVec2f>();
     std::list<std::shared_ptr<of2d>> object = std::list<std::shared_ptr<of2d>>();
+    std::list<otherObjectDrawCall> otherObject = std::list<otherObjectDrawCall>();
     STATE state = NONE;
     OfCanvasPtr canvas = nullptr;
 
@@ -53,6 +59,14 @@ private:
     void onMousePressed(ofMouseEventArgs &evt);
 
     void onKeyRelease(ofKeyEventArgs &);
+
+    ofColor randomColor() const;
+
+    void drawRectangleFromPoint(const ofColor &color);
+
+    void drawTriangleFromPoint(const ofColor &color);
+
+    void drawPolygon(const ofColor &color);
 };
 
 

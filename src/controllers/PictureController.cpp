@@ -40,8 +40,7 @@ void PictureController::onKeyRelease(ofKeyEventArgs &evt) {
     switch (evt.key) {
         case 356:
             if (this->it == this->list.begin()) {
-                this->it = this->list.end()--;
-                return;
+                this->it = this->list.end();
             }
             this->it--;
             break;
@@ -52,5 +51,6 @@ void PictureController::onKeyRelease(ofKeyEventArgs &evt) {
                 return;
             }
             break;
+        default:break;
     }
 }
