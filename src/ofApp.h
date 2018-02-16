@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 #include "controllers/AController.h"
+#include "cursors/CursorManager.h"
 
 
 class ofApp : public ofBaseApp {
@@ -55,4 +56,5 @@ private:
 //
 //    ofxPanel gui;
     AController *controller;
+    CursorManager *pManager;
 };

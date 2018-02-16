@@ -1,5 +1,6 @@
 #include "ofApp.h"
 #include "controllers/ControllerFactory.h"
+#include "cursors/CursorManager.h"
 
 //--------------------------------------------------------------
 void ofApp::setup() {
@@ -24,6 +25,7 @@ void ofApp::setup() {
 //    gui.add(ringButton.setup("ring"));
 //    gui.add(screenSize.setup("screen size", ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight())));
     ofSetFrameRate(30);
+    pManager = CursorManager::getInstance();
     this->controller = ControllerFactory::getDefaultController();
 }
 
@@ -34,7 +36,9 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+    ofSetColor(ofColor::white);
     this->controller->draw();
+    pManager->draw();
 //    ofSpherePrimitive sphere;
 //
 ////    sphere.setPosition(0, 0, 0);
@@ -56,14 +60,17 @@ void ofApp::keyPressed(int key) {
     switch (key) {
         case 49:
             std::cout << "Controller Picture" << std::endl;
+            this->pManager->setDefaultCursor();
             this->controller = ControllerFactory::getPictureController();
             break;
         case 50:
             std::cout << "Controller 2D" << std::endl;
+            this->pManager->setDefaultCursor();
             this->controller = ControllerFactory::getCanvasController();
             break;
         case 51:
             std::cout << "Controller 3D" << std::endl;
+            this->pManager->setDefaultCursor();
             break;
         default:
             return;

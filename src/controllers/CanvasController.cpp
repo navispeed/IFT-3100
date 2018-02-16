@@ -6,11 +6,13 @@
 #include <graphics/ofPolyline.h>
 #include <graphics/ofGraphics.h>
 #include <memory>
+#include <GLFW/glfw3.h>
 #include "CanvasController.h"
 #include "../model/of2d/of2d.h"
 #include "../model/of2d/of2dFactory.h"
 #include "../model/of2d/of2dObject.h"
 #include "ControllerFactory.h"
+#include "../cursors/CursorManager.h"
 
 
 const std::map<int, const char *> CanvasController::stateToString = {
@@ -78,6 +80,7 @@ void CanvasController::onMousePressed(ofMouseEventArgs &evt) {
 
 void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
     std::cout << "key:" << evt.key << std::endl;
+    CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::DEFAULT);
     auto color = randomColor();
     switch (evt.key) {
         case NONE:
@@ -91,10 +94,10 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
             break;
         }
         case LINE:
-            LIST_CONTAIN_0_ELEMENT(this->pointList.size() == 0, setState(LINE))
+            LIST_CONTAIN_0_ELEMENT(this->pointList.size() == 0, setState(LINE); CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::LINE))
             break;
         case CIRCLE: {
-            LIST_CONTAIN_0_ELEMENT(this->pointList.size() == 0, setState(CIRCLE))
+            LIST_CONTAIN_0_ELEMENT(this->pointList.size() == 0, setState(CIRCLE); CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::CIRCLE));
             break;
         }
         case RECTANGLE: {
@@ -136,6 +139,8 @@ void CanvasController::onMouseRelease(ofMouseEventArgs &evt) {
             break;
         }
         case RECTANGLE:
+            break;
+        default:
             break;
     }
     this->initialPoint = nullptr;
