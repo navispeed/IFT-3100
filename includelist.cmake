@@ -48,8 +48,16 @@ link_directories(${RTAUDIO_DIR}/lib/osx)
 link_directories(${TESS2_DIR}/lib/osx)
 link_directories(${VIDEOINPUT_DIR}/lib/osx)
 
+file(READ addons.make addons)
 
+string(REPLACE " " ";" addonsList ${addons})
 
+#list(LENGTH SEXY_LIST len)
+#message(STATUS "len = ${len}")
+#
+
+include_directories(${OF_MAIN_DIR}/addons/ofxGui/src)
+message(${OF_MAIN_DIR}/addons/ofxGui/src)
 
 #link_directories(${OF_MAIN_DIR}/libs/openFrameworksCompiled/lib/osx)
 #
