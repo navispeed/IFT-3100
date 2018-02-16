@@ -6,6 +6,7 @@
 #define IFT_3100_ACONTROLLER_H
 
 #include "vector"
+#include "../cursors/CursorManager.h"
 
 class AController {
 
@@ -16,8 +17,9 @@ public:
     virtual void draw() = 0;
 
     virtual void setEnable(bool enabled) final {
+        CursorManager::getInstance()->setDefaultCursor();
         this->enabled = enabled;
-        if (enabled) {
+        if (this->enabled) {
             this->enableEvents();
         } else {
             this->disableEvents();
@@ -26,6 +28,7 @@ public:
 
 protected:
     virtual void enableEvents() = 0;
+
     virtual void disableEvents() = 0;
 
 private:
