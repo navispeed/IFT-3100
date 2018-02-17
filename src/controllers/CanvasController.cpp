@@ -186,8 +186,6 @@ void CanvasController::drawTriangleFromPoint(const ofColor &color, const vector<
 }
 
 void CanvasController::drawRectangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList) {
-    std::cout << "drawRectangle " << color << " - " << pointList.size() << std::endl;
-
     const auto vec = pointList;
     otherObjectDrawCall x = [vec, color, this]() {
         ofSetColor(color);
