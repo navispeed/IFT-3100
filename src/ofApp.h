@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 #include "controllers/AController.h"
-#include "cursors/CursorManager.h"
+#include "services/cursors/CursorManager.h"
 
 
 class ofApp : public ofBaseApp {

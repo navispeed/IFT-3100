@@ -5,8 +5,8 @@
 #ifndef IFT_3100_ACONTROLLER_H
 #define IFT_3100_ACONTROLLER_H
 
+#include <services/cursors/CursorManager.h>
 #include "vector"
-#include "../cursors/CursorManager.h"
 
 class AController {
 

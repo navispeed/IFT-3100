@@ -11,6 +11,7 @@
 #include "AController.h"
 #include "../model/of2d/of2d.h"
 #include "../model/canvas/OfCanvas.h"
+#include <services/history/History.h>
 
 #define LIST_CONTAIN_0_ELEMENT(cond, action) if (cond) {action; return;}
 #define DISTANCE_BTW_POINT(point1, point2) ((point1 > point2) ? point1 - point2 : point2 - point1);
@@ -53,6 +54,7 @@ private:
     std::list<otherObjectDrawCall> otherObject = std::list<otherObjectDrawCall>();
     STATE state = NONE;
     OfCanvasPtr canvas = nullptr;
+    History *history = nullptr;
 
     void onMouseRelease(ofMouseEventArgs &evt);
 
@@ -62,11 +64,11 @@ private:
 
     ofColor randomColor() const;
 
-    void drawRectangleFromPoint(const ofColor &color);
+    void drawRectangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
 
-    void drawTriangleFromPoint(const ofColor &color);
+    void drawTriangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
 
-    void drawPolygon(const ofColor &color);
+    void drawPolygon(const ofColor &color, const vector<ofVec2f> &pointList);
 };
 
 
