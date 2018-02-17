@@ -58,7 +58,8 @@ string(REPLACE "
 #
 
 include_directories(${OF_MAIN_DIR}/addons/ofxGui/src)
-include_directories("/Users/greg/Downloads/of_v0.9.8_osx_release/apps/myApps/IFT-3100/bin/include " ${OF_MAIN_DIR}/libs/openFrameworks/**"
+include_directories("/Users/greg/Downloads/of_v0.9.8_osx_release/apps/myApps/IFT-3100/bin/include"
+        "${OF_MAIN_DIR}/libs/openFrameworks/**"
  "${OF_MAIN_DIR}/libs/poco/include"
   "${OF_MAIN_DIR}/libs/freetype/include"
    "${OF_MAIN_DIR}/libs/freetype/include/freetype2"
@@ -71,7 +72,9 @@ include_directories("/Users/greg/Downloads/of_v0.9.8_osx_release/apps/myApps/IFT
           "${OF_MAIN_DIR}/libs/glfw/include"
            "${OF_MAIN_DIR}/libs/boost/include"
             "${OF_MAIN_DIR}/libs/utf8cpp/include"
-             "${OF_MAIN_DIR}/libs/openssl/include" src src/controllers src/model/canvas src/model/of2d src/services/cursors src/services/history ${OF_MAIN_DIR}/addons/ofxGui/src"
+             "${OF_MAIN_DIR}/libs/openssl/include"
+              src src/controllers src/model/canvas src/model/of2d src/services/cursors src/services/history
+             "${OF_MAIN_DIR}/addons/ofxGui/src"
         "${OF_MAIN_DIR}/libs/openFrameworks/**"
         "${OF_MAIN_DIR}/libs/poco/include"
         "${OF_MAIN_DIR}/libs/freetype/include"
@@ -111,16 +114,7 @@ target_link_libraries(app "${OF_MAIN_DIR}/libs/poco/lib/osx/PocoCrypto.a"
         "${OF_MAIN_DIR}/libs/freetype/lib/osx/freetype.a"
         "${OF_MAIN_DIR}/libs/boost/lib/osx/boost_filesystem.a"
         "${OF_MAIN_DIR}/libs/boost/lib/osx/boost_system.a"
-        "${OF_MAIN_DIR}/libs/openFrameworksCompiled/lib/osx/libopenFrameworks.a"
-
-        )
-
-if (EXISTS "${OF_MAIN_DIR}/libs/poco/lib/osx/PocoCrypto.a")
-    message("YOLO")
-else ()
-    message("MDR" , ${OF_MAIN_DIR})
-
-endif ()
+        "${OF_MAIN_DIR}/libs/openFrameworksCompiled/lib/osx/libopenFrameworks.a")
 
 #link_directories(${OF_MAIN_DIR}/libs/openFrameworksCompiled/lib/osx)
 #

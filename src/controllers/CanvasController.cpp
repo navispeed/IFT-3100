@@ -5,11 +5,13 @@
 #include <boost/bind.hpp>
 #include <graphics/ofPolyline.h>
 #include <graphics/ofGraphics.h>
+#include <model/Vectorial2dForm/RecursiveTree.h>
 #include "CanvasController.h"
 #include "model/of2d/of2dFactory.h"
 #include "model/of2d/of2dObject.h"
 #include "services/history/HistoryManager.h"
 #include "ControllerFactory.h"
+#include <model/Vectorial2dForm/Sierpinski.h>
 
 
 const std::map<int, const char *> CanvasController::stateToString = {
@@ -114,7 +116,27 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
             this->pointList.clear();
             break;
         }
-        case 115: { //Save
+        case REC_TREE: {
+            LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 1,
+                                   std::string("1 point est nécessaire pour un arbre "))
+            const auto point = this->pointList[0];
+            this->otherObject.push_back([point]() { RecursiveTree().draw(point); });
+            this->pointList.clear();
+        }
+        case SIERPINSKI: {
+            LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 1,
+                                   std::string("1 point est nécessaire pour un arbre "))
+            const auto point = this->pointList[0];
+            const std::string simulation = LSystem(ofVec2f()).simulate(6, 20);
+
+            this->otherObject.emplace_back([point, simulation]() {
+                auto lSystem = LSystem(point, 1.0f);
+                lSystem.render(simulation);
+            });
+            this->pointList.clear();
+        }
+
+        case ' ': { //Save
             auto image = this->getCanvas()->getCapture();
             ControllerFactory::getPictureController()->addImage(image);
             break;

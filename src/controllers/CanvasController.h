@@ -26,6 +26,8 @@ public:
         POLYGONE = 112,
         RECTANGLE = 114,
         TRIANGLE = 116,
+        REC_TREE = 121,
+        SIERPINSKI = 115,
     };
     static const std::map<int, const char *> stateToString;
 
