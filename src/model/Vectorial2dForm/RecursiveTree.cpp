@@ -26,9 +26,8 @@ void RecursiveTree::draw(ofVec2f f) {
 
 void RecursiveTree::branch(int h, double d) {
     h *= 0.66;
-//    auto save = currentPoint;
     if (h <= 2) return;
-
+    
     ofPushMatrix();
     ofRotate(static_cast<float>(d));
     ofDrawLine(ofVec3f(0, 0), ofVec3f(0, 0) + ofVec2f(0, -h));
@@ -36,7 +35,6 @@ void RecursiveTree::branch(int h, double d) {
     branch(h, d);
     ofPopMatrix();
 
-//    currentPoint = save;
     ofPushMatrix();
     ofRotate(-static_cast<float>(d));
     ofDrawLine(ofVec3f(0, 0), ofVec3f(0, 0) + ofVec2f(0, -h));

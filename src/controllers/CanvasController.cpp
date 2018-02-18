@@ -14,13 +14,17 @@
 #include <model/Vectorial2dForm/Sierpinski.h>
 
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "InfiniteRecursion"
 const std::map<int, const char *> CanvasController::stateToString = {
-        {NONE,             ""},
-        {STATE::RECTANGLE, "Rectangle"},
-        {STATE::POLYGONE,  "Polygone"},
-        {STATE::CIRCLE,    "Cercle"},
-        {STATE::LINE,      "Ligne"},
-        {STATE::TRIANGLE,  "Triangle"},
+        {NONE,              ""},
+        {STATE::RECTANGLE,  "Rectangle"},
+        {STATE::POLYGONE,   "Polygone"},
+        {STATE::CIRCLE,     "Cercle"},
+        {STATE::LINE,       "Ligne"},
+        {STATE::TRIANGLE,   "Triangle"},
+        {STATE::REC_TREE,   "Arbre récursif"},
+        {STATE::SIERPINSKI, "Sierpinski"},
 };
 
 void CanvasController::setup() {
@@ -120,22 +124,20 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 1,
                                    std::string("1 point est nécessaire pour un arbre "))
             const auto point = this->pointList[0];
-            this->otherObject.push_back([point]() { RecursiveTree().draw(point); });
+            this->otherObject.emplace_back([point]() { RecursiveTree().draw(point); });
             this->pointList.clear();
         }
         case SIERPINSKI: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 1,
                                    std::string("1 point est nécessaire pour un arbre "))
             const auto point = this->pointList[0];
-            const std::string simulation = LSystem(ofVec2f()).simulate(6, 20);
-
+            const std::string simulation = Sierpinski(ofVec2f()).simulate(9);
             this->otherObject.emplace_back([point, simulation]() {
-                auto lSystem = LSystem(point, 1.0f);
+                auto lSystem = Sierpinski(point, 0.9f);
                 lSystem.render(simulation);
             });
             this->pointList.clear();
         }
-
         case ' ': { //Save
             auto image = this->getCanvas()->getCapture();
             ControllerFactory::getPictureController()->addImage(image);
@@ -208,7 +210,7 @@ void CanvasController::drawTriangleFromPoint(const ofColor &color, const vector<
 }
 
 void CanvasController::drawRectangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList) {
-    const auto vec = pointList;
+    const auto &vec = pointList;
     otherObjectDrawCall x = [vec, color, this]() {
         ofSetColor(color);
         auto leftX = vec[0].x < vec[1].x ? vec[0].x : vec[1].x;
@@ -243,3 +245,5 @@ void CanvasController::drawPolygon(const ofColor &color, const vector<ofVec2f> &
     this->history->add([iteratorOnLast, this]() { this->otherObject.erase(iteratorOnLast); },
                        [color, vec, this]() { this->drawPolygon(color, vec); });
 }
+
+#pragma clang diagnostic pop

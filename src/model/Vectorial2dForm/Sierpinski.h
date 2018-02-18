@@ -9,11 +9,10 @@
 #include <string>
 #include <graphics/ofGraphics.h>
 
-class LSystem {
+class Sierpinski {
 
 
     int steps = 0;
-    int step_inc = 1;
 
     std::string axiom;
     std::string ruleA;
@@ -23,24 +22,23 @@ class LSystem {
     const float startLength;
     const float angle;
     const ofVec2f startPoint;
-    float drawLength = 0;
+    double drawLength = 0;
     int generations = 0;
 
 public:
-//    template <int gen, int inc>
-//    struct simulate {
-//        enum { value = N * Factorial<N - 1>::value };
-//    };
 
-    LSystem(const ofVec2f startPoint, float startLength = 9.0f);
+    explicit Sierpinski(const ofVec2f startPoint = ofVec2f(0, 0), float startLength = 9.0f);
 
     void reset();
 
-    int getAge();
+    std::string simulate(int gen);
 
     void render(const std::string &p);
 
-    std::string simulate(int gen, int step_inc_);
+private:
+
+    int getAge();
+
 
     std::string iterate(std::string &prod_, std::string &ruleA_, std::string &ruleB_);
 };
