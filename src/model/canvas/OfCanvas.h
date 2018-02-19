@@ -11,14 +11,15 @@
 #include <graphics/ofImage.h>
 #include "../of2d/of2d.h"
 #include "../../controllers/PictureController.h"
+#include <model/constant.h>
 
 class OfCanvas : public ofNode {
-    std::list<std::shared_ptr<of2d>> object = std::list<std::shared_ptr<of2d>>();
+    std::list<otherObjectDrawCall> otherObject = std::list<otherObjectDrawCall>();
     ofImagePtr capture;
 public:
-    OfCanvas(const list<shared_ptr<of2d>> &object, ofImage *capture);
+    OfCanvas(const std::list<otherObjectDrawCall> &object, ofImage *capture);
 
-    list<shared_ptr<of2d>> getObject() const;
+    std::list<otherObjectDrawCall> getObject() const;
 
     const ofImagePtr &getCapture() const;
 

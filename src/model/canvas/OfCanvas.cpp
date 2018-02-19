@@ -5,11 +5,11 @@
 #include <graphics/ofGraphics.h>
 #include "OfCanvas.h"
 
-OfCanvas::OfCanvas(const list<shared_ptr<of2d>> &object, ofImage *capture) : object(object), capture(std::shared_ptr<ofImage>(capture)) {
+OfCanvas::OfCanvas(const std::list<otherObjectDrawCall> &object, ofImage *capture) : otherObject(object), capture(std::shared_ptr<ofImage>(capture)) {
 }
 
-list<shared_ptr<of2d>> OfCanvas::getObject() const {
-    return object;
+std::list<otherObjectDrawCall> OfCanvas::getObject() const {
+    return otherObject;
 }
 
 void OfCanvas::customDraw(const ofBaseRenderer *renderer) const {

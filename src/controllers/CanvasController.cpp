@@ -13,7 +13,6 @@
 #include "ControllerFactory.h"
 #include <model/Vectorial2dForm/Sierpinski.h>
 
-
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "InfiniteRecursion"
 const std::map<int, const char *> CanvasController::stateToString = {
@@ -34,9 +33,6 @@ void CanvasController::setup() {
 }
 
 void CanvasController::draw() {
-    for (const auto &o : this->object) {
-        o->draw();
-    }
     for (const auto &f : this->otherObject) {
         f();
     }
@@ -123,20 +119,24 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
         case REC_TREE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 1,
                                    std::string("1 point est nécessaire pour un arbre "))
-            const auto point = this->pointList[0];
-            this->otherObject.emplace_back([point]() { RecursiveTree().draw(point); });
+            const ofVec2f point = this->pointList[0];
+            auto draw = [point]() { RecursiveTree().draw(point); };
+            auto redoFunction = [draw, this]() { this->otherObject.emplace_back(draw); };
+            redoFunction();
             this->pointList.clear();
+            DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
+
         }
         case SIERPINSKI: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 1,
                                    std::string("1 point est nécessaire pour un arbre "))
             const auto point = this->pointList[0];
             const std::string simulation = Sierpinski(ofVec2f()).simulate(9);
-            this->otherObject.emplace_back([point, simulation]() {
-                auto lSystem = Sierpinski(point, 0.9f);
-                lSystem.render(simulation);
-            });
+            auto draw = [point, simulation]() { Sierpinski(point, 0.9f).render(simulation); };
+            auto redoFunction = [draw, this]() { this->otherObject.emplace_back(draw); };
+            redoFunction();
             this->pointList.clear();
+            DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
         }
         case ' ': { //Save
             auto image = this->getCanvas()->getCapture();
@@ -158,7 +158,8 @@ void CanvasController::onMouseRelease(ofMouseEventArgs &evt) {
             shared_ptr<ofPolyline> line = dynamic_cast<of2dObject<ofPolyline> *>(&(*ptr))->getInstance();
             line->addVertex(this->initialPoint->x, this->initialPoint->y);
             line->addVertex(evt.x, evt.y);
-            this->object.push_back(ptr);
+            otherObjectDrawCall x = [line]() { line->draw(); };
+            this->otherObject.push_back(x);
             break;
         }
         case CIRCLE: {
@@ -176,18 +177,17 @@ void CanvasController::onMouseRelease(ofMouseEventArgs &evt) {
 
 void CanvasController::load(OfCanvasPtr canvas) {
     this->canvas = canvas;
-    this->object = canvas->getObject();
+    this->otherObject = canvas->getObject();
 }
 
 void CanvasController::reset() {
-    this->object.clear();
     this->otherObject.clear();
 }
 
 OfCanvasPtr CanvasController::getCanvas() {
     auto *img = new ofImage();
     img->grabScreen(0, 0, ofGetWidth(), ofGetHeight());
-    this->canvas = make_shared<OfCanvas>(this->object, img);
+    this->canvas = make_shared<OfCanvas>(this->otherObject, img);
     return this->canvas;
 }
 
@@ -203,10 +203,8 @@ void CanvasController::drawTriangleFromPoint(const ofColor &color, const vector<
         ofSetColor(defColor);
     };
     this->otherObject.push_back(x);
-    auto iteratorOnLast = otherObject.end()--;
-    iteratorOnLast--;
-    this->history->add([iteratorOnLast, this]() { this->otherObject.erase(iteratorOnLast); },
-                       [color, vec, this]() { this->drawTriangleFromPoint(color, vec); });
+    auto redoFunction = [color, vec, this]() { this->drawTriangleFromPoint(color, vec); };
+    DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
 }
 
 void CanvasController::drawRectangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList) {
@@ -221,10 +219,8 @@ void CanvasController::drawRectangleFromPoint(const ofColor &color, const vector
         ofSetColor(defColor);
     };
     this->otherObject.push_back(x);
-    auto iteratorOnLast = otherObject.end()--;
-    iteratorOnLast--;
-    this->history->add([iteratorOnLast, this]() { this->otherObject.erase(iteratorOnLast); },
-                       [color, vec, this]() { this->drawRectangleFromPoint(color, vec); });
+    auto redoFunction = [color, vec, this]() { this->drawRectangleFromPoint(color, vec); };
+    DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
 }
 
 void CanvasController::drawPolygon(const ofColor &color, const vector<ofVec2f> &pointList) {
@@ -242,8 +238,8 @@ void CanvasController::drawPolygon(const ofColor &color, const vector<ofVec2f> &
     otherObject.push_back(x);
     auto iteratorOnLast = otherObject.end()--;
     iteratorOnLast--;
-    this->history->add([iteratorOnLast, this]() { this->otherObject.erase(iteratorOnLast); },
-                       [color, vec, this]() { this->drawPolygon(color, vec); });
+    auto redoFunction = [color, vec, this]() { this->drawPolygon(color, vec); };
+    DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
 }
 
 #pragma clang diagnostic pop

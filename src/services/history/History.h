@@ -26,5 +26,11 @@ private:
     std::stack<PtrXXdo> redoAction;
 };
 
+#define DEFINE_UNDO_REDO_CONTAINER(history, container, redoFct) do { \
+          auto iteratorOnLast = (container).end()--; \
+          iteratorOnLast--; \
+          (history)->add([iteratorOnLast, this]() { (container).erase(iteratorOnLast); }, \
+          redoFct); \
+    } while (false)
 
 #endif //IFT_3100_HISTORY_H

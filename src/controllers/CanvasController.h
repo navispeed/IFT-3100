@@ -12,6 +12,8 @@
 #include "../model/of2d/of2d.h"
 #include "../model/canvas/OfCanvas.h"
 #include <services/history/History.h>
+#include <model/constant.h>
+
 
 #define LIST_CONTAIN_0_ELEMENT(cond, action) if (cond) {action; return;}
 #define DISTANCE_BTW_POINT(point1, point2) ((point1 > point2) ? point1 - point2 : point2 - point1);
@@ -49,10 +51,8 @@ protected:
     void disableEvents() override;
 
 private:
-    typedef std::function<void()> otherObjectDrawCall;
     std::shared_ptr<ofVec2f> initialPoint = nullptr;
     std::vector<ofVec2f> pointList = std::vector<ofVec2f>();
-    std::list<std::shared_ptr<of2d>> object = std::list<std::shared_ptr<of2d>>();
     std::list<otherObjectDrawCall> otherObject = std::list<otherObjectDrawCall>();
     STATE state = NONE;
     OfCanvasPtr canvas = nullptr;
