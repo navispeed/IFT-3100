@@ -9,6 +9,8 @@
 #include "AController.h"
 #include "CanvasController.h"
 #include "PictureController.h"
+#include "Primitive3dController.h"
+#include "Model3dController.h"
 
 class ControllerFactory {
 private:
@@ -17,6 +19,7 @@ public:
     static AController* getDefaultController();
     static CanvasController* getCanvasController();
     static PictureController* getPictureController();
+	static Model3dController * getModel3dController();
 };
 
 

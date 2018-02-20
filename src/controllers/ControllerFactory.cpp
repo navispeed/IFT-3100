@@ -22,6 +22,12 @@ PictureController *ControllerFactory::getPictureController() {
     return instance;
 }
 
+Model3dController *ControllerFactory::getModel3dController() {
+	static auto instance = new Model3dController();
+	init(instance);
+	return instance;
+}
+
 void ControllerFactory::init(AController *controller) {
 
 }

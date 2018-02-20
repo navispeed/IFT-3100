@@ -26,6 +26,12 @@ void CursorManager::setCursor(CursorManager::CURSOR_TYPE type) {
         case LINE:
             this->instance = new LineCursor();
             break;
+		case SPHERE:
+			this->instance = new SphereCursor();
+			break;
+		case CUBE:
+			this->instance = new CubeCursor();
+			break;
     }
     this->instance->enable();
 }

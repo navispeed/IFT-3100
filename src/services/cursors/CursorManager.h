@@ -8,13 +8,17 @@
 
 #include "Cursor.h"
 #include "CircleCursor.h"
+#include "SphereCursor.h"
+#include "CubeCursor.h"
 
 class CursorManager {
 public:
     enum CURSOR_TYPE {
         DEFAULT,
         CIRCLE,
-        LINE
+        LINE,
+		SPHERE,
+		CUBE
     };
 
     void setDefaultCursor();
