@@ -71,6 +71,7 @@ void ofApp::keyPressed(int key) {
         case 51:
             std::cout << "Controller 3D" << std::endl;
             this->pManager->setDefaultCursor();
+			this->controller = ControllerFactory::getModel3dController();
             break;
         default:
             return;
