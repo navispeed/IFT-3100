@@ -15,7 +15,7 @@ void Model3dController::setup()
 {
 	ofSetWindowTitle("3d mode");
 	model1 = new ofxAssimpModelLoader();
-	model1->loadModel("model1.obj");
+	model1->loadModel("./model1.obj");
 	model2 = new ofxAssimpModelLoader();
 	model2->loadModel("model2.obj");
 	enableEvents();

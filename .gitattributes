@@ -1,0 +1,2 @@
+model1.obj filter=lfs diff=lfs merge=lfs -text
+model2.obj filter=lfs diff=lfs merge=lfs -text
