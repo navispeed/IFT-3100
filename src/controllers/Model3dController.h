@@ -4,20 +4,44 @@
 #include <ofEvent.h>
 #include "AController.h"
 #include <vector>
-#include "../model/model3d/Model3d.h"
-#include "../model/model3d/Primitive3d.h"
+#include <model/model3d/Model3d.h>
+#include <model/model3d/Primitive3d.h>
+#include <services/history/History.h>
 #include "ofxAssimpModelLoader.h"
 
 class Model3dController :public AController {
 private:
-	enum class FormMode { none,model1, model2,box,sphere };
-	FormMode formMode = FormMode::none;
-	std::vector<Object3d*> * container = new vector<Object3d*>();
+	enum class FormMode { NONE,MODEL1, MODEL2,BOX,SPHERE };
+	enum class TransformType{TRANSLATE,SCALE,ROTATE};
+	FormMode formMode = FormMode::NONE;
+	TransformType transformType = TransformType::SCALE;
+
+
+	const int TRANSLATEDISTANCE=5;
+	const int ROTATEDISTANCE = 1;
+	const float SCALEDISTANCE = 0.05;
+
+	int xRotate=ROTATEDISTANCE;
+	float xScale= SCALEDISTANCE;
+	int xTranslate=TRANSLATEDISTANCE;
+	float yRotate = 0;
+	float yScale= SCALEDISTANCE;
+	int yTranslate = 0;
+	float zRotate = 0;
+	float zScale = SCALEDISTANCE;
+	int zTranslate = 0;
+
+	std::list<Object3d*> container;
+	std::vector<Object3d*> selection;
 	ofVec2f * initialPoint = nullptr;
 
 	ofxAssimpModelLoader * model1;
 	ofxAssimpModelLoader * model2;
 
+	History *history = nullptr;
+	ofImage	image;
+	ofTexture mTex;
+	ofLight	light;
 public:
 	~Model3dController();
 
@@ -32,9 +56,12 @@ public:
 	void onMouseReleased(ofMouseEventArgs & evt);
 	void onKeyRelease(ofKeyEventArgs &evt);
 
-	Object3d * createBox(const ofVec3f & position);
-	Object3d * createSphere(const ofVec3f & position);
+	void createModel(const ofVec3f &position, ofxAssimpModelLoader * model);
+	void createBox(const ofVec3f & position, const ofVec2f& startPoint);
+	void createSphere(const ofVec3f & position, const ofVec2f& startPoint);
 
+	void transform(Object3d* obj, int direction);
+	void addItem(Object3d* ptr);
 	void reset();
 
 };
