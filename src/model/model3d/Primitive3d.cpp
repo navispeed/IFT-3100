@@ -15,17 +15,17 @@ void Primitive3d::drawObject()
 	this->primitive->draw();
 }
 
-void Primitive3d::rotate(float angle, const ofVec3f & axis)
+void Primitive3d::rotate(float angle, const ofVec3f axis)
 {
 	this->primitive->rotate(angle, axis);
 }
 
-void Primitive3d::translate(ofVec3f & translation)
+void Primitive3d::translate(ofVec3f translation)
 {
 	this->primitive->setPosition(this->primitive->getPosition() + translation);
 }
 
-void Primitive3d::modifyScale(ofVec3f& scaleAdjust)
+void Primitive3d::modifyScale(ofVec3f scaleAdjust)
 {
 	this->primitive->setScale(this->primitive->getScale() + scaleAdjust);
 }

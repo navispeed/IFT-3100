@@ -22,7 +22,7 @@ void Model3d::drawObject()
 	model->draw(OF_MESH_FILL);
 }
 
-void Model3d::rotate(float angle, const ofVec3f & axis)
+void Model3d::rotate(float angle, const ofVec3f axis)
 {
 	if (axis.x > 0) {
 		adjustAngleX(angle);
@@ -35,12 +35,12 @@ void Model3d::rotate(float angle, const ofVec3f & axis)
 	}
 }
 
-void Model3d::translate(ofVec3f & translation)
+void Model3d::translate(ofVec3f translation)
 {
 	this->position += translation;
 }
 
-void Model3d::modifyScale(ofVec3f& scaleAdjust)
+void Model3d::modifyScale(ofVec3f scaleAdjust)
 {
 	this->scale += scaleAdjust;
 }
