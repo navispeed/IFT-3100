@@ -28,9 +28,9 @@ void PictureController::disableEvents() {
 
 void PictureController::addImage(const ofImagePtr &image) {
     this->list.push_back(image);
-    if (this->list.size() == 1) {
-        this->it = this->list.begin();
-    }
+    auto iterator = this->list.end();
+    iterator--;
+    this->it = iterator;
 }
 
 void PictureController::onKeyRelease(ofKeyEventArgs &evt) {
@@ -53,4 +53,20 @@ void PictureController::onKeyRelease(ofKeyEventArgs &evt) {
             break;
         default:break;
     }
+}
+
+void PictureController::saveCurrent(const std::string &path) {
+    shared_ptr<ofImage> reference = *this->it;
+    reference->save(path);
+}
+
+void PictureController::loadFrom(const string &path) {
+    auto image = std::make_shared<ofImage>();
+    if (!image->load(path)) {
+        throw std::runtime_error("Invalid file");
+    }
+    this->list.push_back(image);
+    auto iterator = this->list.end();
+    iterator--;
+    this->it = iterator;
 }

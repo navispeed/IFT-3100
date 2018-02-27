@@ -15,7 +15,7 @@ void Primitive3d::drawObject()
 	this->primitive->draw();
 }
 
-void Primitive3d::rotate(float angle, const ofVec3f axis)
+void Primitive3d::rotate(float angle, ofVec3f axis)
 {
 	this->primitive->rotate(angle, axis);
 }

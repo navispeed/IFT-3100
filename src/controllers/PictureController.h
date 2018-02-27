@@ -19,6 +19,15 @@ public:
 
     void addImage(const ofImagePtr &image);
 
+    void saveCurrent(const std::string &path);
+
+    /**
+     * Load image from path
+     * @throw std::runtime_error in case of invalid path
+     * @param path to an image file
+     */
+    void loadFrom(const std::string &path);
+
 protected:
     void enableEvents() override;
 

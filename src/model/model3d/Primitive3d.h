@@ -7,9 +7,9 @@ public:
 	~Primitive3d();
 	Primitive3d(of3dPrimitive * primitive);
 	void drawObject() override;
-	void rotate(float angle, const ofVec3f axis);
-	void translate(ofVec3f translation);
-	void modifyScale(ofVec3f scaleAdjust);
+	void rotate(float angle, ofVec3f axis) override;
+	void translate(ofVec3f translation) override;
+	void modifyScale(ofVec3f scaleAdjust) override;
 private:
 	of3dPrimitive * primitive;
 };
