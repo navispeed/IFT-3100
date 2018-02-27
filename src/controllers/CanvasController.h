@@ -13,6 +13,7 @@
 #include "../model/canvas/OfCanvas.h"
 #include <services/history/History.h>
 #include <model/constant.h>
+#include <services/drawOption/DrawOption.h>
 
 
 #define LIST_CONTAIN_0_ELEMENT(cond, action) if (cond) {action; return;}
@@ -57,6 +58,7 @@ private:
     STATE state = NONE;
     OfCanvasPtr canvas = nullptr;
     History *history = nullptr;
+    DrawOption *drawOption = DrawOption::getInstance();
 
     void onMouseRelease(ofMouseEventArgs &evt);
 
@@ -71,6 +73,8 @@ private:
     void drawTriangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
 
     void drawPolygon(const ofColor &color, const vector<ofVec2f> &pointList);
+
+    otherObjectDrawCall drawIt(otherObjectDrawCall fct, bool toFill);
 };
 
 

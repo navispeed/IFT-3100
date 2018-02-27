@@ -33,8 +33,14 @@ void CanvasController::setup() {
 }
 
 void CanvasController::draw() {
+    ofSetBackgroundColor(this->drawOption->getBackgroundColor());
     for (const auto &f : this->otherObject) {
+        ofPushMatrix();
+        ofPushStyle();
         f();
+        ofPopStyle();
+        ofPopMatrix();
+        ofSetColor(ofColor::white);
     }
     ofSetColor(ofColor::black);
     for (const auto &point : this->pointList) {
@@ -77,10 +83,42 @@ void CanvasController::onMousePressed(ofMouseEventArgs &evt) {
     }
 }
 
+void CanvasController::onMouseRelease(ofMouseEventArgs &evt) {
+    switch (this->state) {
+        case NONE:
+            break;
+        case LINE: {
+            ofPolyline line;
+            line.addVertex(this->initialPoint->x, this->initialPoint->y);
+            line.addVertex(evt.x, evt.y);
+            otherObjectDrawCall x = [line]() { line.draw(); };
+            this->otherObject.push_back(drawIt(x, false));
+            auto redoFct = [x, this]() { this->otherObject.push_back(drawIt(x, false)); };
+            DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFct);
+            break;
+        }
+        case CIRCLE: {
+            float radius = this->initialPoint->distance(ofVec2f(evt.x, evt.y));
+            ofVec2f point = *this->initialPoint;
+            otherObjectDrawCall x = [point, radius, this]() {
+                ofDrawCircle(point.x, point.y, radius);
+            };
+            auto redoFct = [x, this]() {
+                this->otherObject.push_back(drawIt(x, false));
+            };
+            this->otherObject.push_back(drawIt(x, true));
+            DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFct);
+            break;
+        }
+        default:
+            break;
+    }
+    this->initialPoint = nullptr;
+}
+
 void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
     std::cout << "key:" << evt.key << std::endl;
     CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::DEFAULT);
-    auto color = randomColor();
     switch (evt.key) {
         case NONE:
             this->pointList.clear();
@@ -89,7 +127,7 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
         case POLYGONE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.empty(), setState(POLYGONE))
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() < 3, ;)
-            drawPolygon(color, this->pointList);
+            drawPolygon(this->drawOption->getFillColor(), this->pointList);
             pointList.clear();
             break;
         }
@@ -105,14 +143,14 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
         case RECTANGLE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 2,
                                    std::string("2 points sont nécessaire pour un rectangle "));
-            drawRectangleFromPoint(color, this->pointList);
+            drawRectangleFromPoint(this->drawOption->getFillColor(), this->pointList);
             this->pointList.clear();
             break;
         }
         case TRIANGLE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 3,
                                    std::string("3 points sont nécessaire pour un triangle "))
-            drawTriangleFromPoint(color, this->pointList);
+            drawTriangleFromPoint(this->drawOption->getFillColor(), this->pointList);
             this->pointList.clear();
             break;
         }
@@ -148,33 +186,6 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
     }
 }
 
-void CanvasController::onMouseRelease(ofMouseEventArgs &evt) {
-    auto color = randomColor();
-    switch (this->state) {
-        case NONE:
-            break;
-        case LINE: {
-            const shared_ptr<of2d> &ptr = of2dFactory::getLine();
-            shared_ptr<ofPolyline> line = dynamic_cast<of2dObject<ofPolyline> *>(&(*ptr))->getInstance();
-            line->addVertex(this->initialPoint->x, this->initialPoint->y);
-            line->addVertex(evt.x, evt.y);
-            otherObjectDrawCall x = [line]() { line->draw(); };
-            this->otherObject.push_back(x);
-            break;
-        }
-        case CIRCLE: {
-            float radius = this->initialPoint->distance(ofVec2f(evt.x, evt.y));
-            ofVec2f point = *this->initialPoint;
-            otherObjectDrawCall x = [point, radius]() { ofDrawCircle(point.x, point.y, radius); };
-            this->otherObject.push_back(x);
-            break;
-        }
-        default:
-            break;
-    }
-    this->initialPoint = nullptr;
-}
-
 void CanvasController::load(OfCanvasPtr canvas) {
     this->canvas = canvas;
     this->otherObject = canvas->getObject();
@@ -198,11 +209,9 @@ ofColor CanvasController::randomColor() const {
 void CanvasController::drawTriangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList) {
     const auto vec = pointList;
     otherObjectDrawCall x = [vec, color, this]() {
-        ofSetColor(color);
         ofDrawTriangle(vec[0].x, vec[0].y, vec[1].x, vec[1].y, vec[2].x, vec[2].y);
-        ofSetColor(defColor);
     };
-    this->otherObject.push_back(x);
+    this->otherObject.push_back(drawIt(x, true));
     auto redoFunction = [color, vec, this]() { this->drawTriangleFromPoint(color, vec); };
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
 }
@@ -210,36 +219,48 @@ void CanvasController::drawTriangleFromPoint(const ofColor &color, const vector<
 void CanvasController::drawRectangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList) {
     const auto &vec = pointList;
     otherObjectDrawCall x = [vec, color, this]() {
-        ofSetColor(color);
         auto leftX = vec[0].x < vec[1].x ? vec[0].x : vec[1].x;
         auto leftY = vec[0].y < vec[1].y ? vec[0].y : vec[1].y;
         float h = DISTANCE_BTW_POINT(vec[0].x, vec[1].x);
         float d = DISTANCE_BTW_POINT(vec[0].y, vec[1].y);
         ofDrawRectangle(leftX, leftY, h, d);
-        ofSetColor(defColor);
     };
-    this->otherObject.push_back(x);
+    this->otherObject.push_back(drawIt(x, true));
     auto redoFunction = [color, vec, this]() { this->drawRectangleFromPoint(color, vec); };
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
 }
 
 void CanvasController::drawPolygon(const ofColor &color, const vector<ofVec2f> &pointList) {
     std::vector<ofVec2f> vec = pointList;
-    ofPolyline line;
-    for (auto p: vec) {
-        line.addVertex(p);
-    }
-    line.addVertex(*vec.begin());
-    otherObjectDrawCall x = [line, color, this]() {
-        ofSetColor(color);
-        line.draw();
-        ofSetColor(defColor);
+    otherObjectDrawCall x = [color, vec, this]() {
+        ofBeginShape();
+        for (const auto &point : vec) {
+            ofVertex(point.x, point.y);
+        }
+        ofEndShape(true);
     };
-    otherObject.push_back(x);
-    auto iteratorOnLast = otherObject.end()--;
-    iteratorOnLast--;
+    otherObject.push_back(drawIt(x, true));
     auto redoFunction = [color, vec, this]() { this->drawPolygon(color, vec); };
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
+}
+
+otherObjectDrawCall CanvasController::drawIt(otherObjectDrawCall fct, bool toFill) {
+    ofColor fillColor = this->drawOption->getFillColor();
+    ofColor outlineColor = this->drawOption->getOutLineColor();
+    float weight = this->drawOption->getWeight();
+    auto color = (toFill ? fillColor : outlineColor);
+    auto f = [fct, weight, color, fillColor, outlineColor, toFill]() {
+        ofSetLineWidth(weight);
+        if (toFill) {
+            ofSetColor(fillColor);
+            ofFill();
+            fct();
+            ofNoFill();
+        }
+        ofSetColor(outlineColor);
+        fct();
+    };
+    return f;
 }
 
 #pragma clang diagnostic pop

@@ -33,4 +33,5 @@ private:
           redoFct); \
     } while (false)
 
+
 #endif //IFT_3100_HISTORY_H

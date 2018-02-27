@@ -75,6 +75,7 @@ include_directories("/Users/greg/Downloads/of_v0.9.8_osx_release/apps/myApps/IFT
              "${OF_MAIN_DIR}/libs/openssl/include"
               src src/controllers src/model/canvas src/model/of2d src/services/cursors src/services/history
              "${OF_MAIN_DIR}/addons/ofxGui/src"
+             "${OF_MAIN_DIR}/addons/ofxAssimpModelLoader/src"
         "${OF_MAIN_DIR}/libs/openFrameworks/**"
         "${OF_MAIN_DIR}/libs/poco/include"
         "${OF_MAIN_DIR}/libs/freetype/include"

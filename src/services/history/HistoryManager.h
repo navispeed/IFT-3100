@@ -7,7 +7,6 @@
 
 
 #include <controllers/AController.h>
-#include <model/singleton/Singleton.h>
 #include "History.h"
 
 class HistoryManager {
