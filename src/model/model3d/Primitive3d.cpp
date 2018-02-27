@@ -29,3 +29,7 @@ void Primitive3d::modifyScale(ofVec3f scaleAdjust)
 {
 	this->primitive->setScale(this->primitive->getScale() + scaleAdjust);
 }
+
+ofNode *Primitive3d::getAsOfNode() {
+	return this->primitive;
+}

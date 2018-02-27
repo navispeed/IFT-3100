@@ -24,4 +24,6 @@ public:
 	void rotate(float angle, ofVec3f axis) override;
 	void translate(ofVec3f translation) override;
 	void modifyScale(ofVec3f scaleAdjust) override;
+
+	ofNode *getAsOfNode() override;
 };

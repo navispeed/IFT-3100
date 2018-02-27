@@ -71,3 +71,7 @@ void Model3d::adjustangle(const float adjust, float & angle)
 	}
 }
 
+ofNode *Model3d::getAsOfNode() {
+	return nullptr;
+}
+

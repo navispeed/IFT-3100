@@ -10,4 +10,6 @@ public:
 	virtual void translate(ofVec3f translation) = 0;
 
 	virtual void modifyScale(ofVec3f scaleAdjust) = 0;
+
+	virtual ofNode* getAsOfNode()= 0;
 };

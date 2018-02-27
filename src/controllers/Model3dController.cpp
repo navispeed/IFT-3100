@@ -6,9 +6,6 @@ Model3dController::~Model3dController()
 	delete model1;
 	delete model2;
 	delete initialPoint;
-	for (auto it : container) {
-		delete it;
-	}
 }
 
 void Model3dController::setup()
@@ -29,7 +26,7 @@ void Model3dController::setup()
 void Model3dController::draw()
 {
 	ofEnableDepthTest();
-	for (auto it : container) {
+	for (auto &it : container) {
 		it->drawObject();
 	}
 }
@@ -95,12 +92,12 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
 		break;
 	case 356://fleche
 		for (int i = 0; i < selection.size(); i++) {
-			this->transform(selection[i],1);
+			this->transform(selection[i].get(),1);
 		}
 		break;
 	case 358://fleche
 		for (int i = 0; i < selection.size(); i++) {
-			this->transform(selection[i],-1);
+			this->transform(selection[i].get(),-1);
 		}
 	case 90: {
 		auto it = container.end();
@@ -181,16 +178,16 @@ void Model3dController::onMouseReleased(ofMouseEventArgs & evt)
 
 void Model3dController::createModel(const ofVec3f &position,ofxAssimpModelLoader * model) {
 	auto redoFunction = [model, position, this]() { this->createModel(position, model); };
-	this->addItem(new Model3d(model, position));
+	this->addItem(std::make_shared<Model3d>(model, position));
 	DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
 }
 
 void Model3dController::createBox(const ofVec3f & position, const ofVec2f& startPoint)
 {
-	ofBoxPrimitive * temp = new ofBoxPrimitive();
+	auto temp = new ofBoxPrimitive();
 	temp->set(startPoint.distance(ofVec2f(position.x, position.y)));
 	temp->setPosition(position);
-	Primitive3d * ptr = new Primitive3d(temp);
+	auto ptr = std::make_shared<Primitive3d>(temp);
 	this->addItem(ptr);
 
 	auto redoFunction = [position, this,startPoint]() { this->createBox(position,startPoint); };
@@ -199,10 +196,10 @@ void Model3dController::createBox(const ofVec3f & position, const ofVec2f& start
 
 void Model3dController::createSphere(const ofVec3f & position, const ofVec2f& startPoint)
 {
-	ofSpherePrimitive * temp = new ofSpherePrimitive();
+	auto temp = new ofSpherePrimitive();
 	temp->setRadius((startPoint.distance(ofVec2f(position.x, position.y))) / 2);
 	temp->setPosition(position);
-	Primitive3d * ptr = new Primitive3d(temp);
+	auto ptr = std::make_shared<Primitive3d>(temp);
 	this->addItem(ptr);
 
 	auto redoFunction = [position, this, startPoint]() { this->createSphere(position, startPoint); };
@@ -223,7 +220,7 @@ void Model3dController::transform(Object3d* obj,int direction) {
 	}
 }
 
-void Model3dController::addItem(Object3d* ptr) {
+void Model3dController::addItem(Object3d_Ptr ptr) {
 	container.push_back(ptr);
 	selection.clear();
 	selection.push_back(ptr);
