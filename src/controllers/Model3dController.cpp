@@ -9,16 +9,28 @@ Model3dController::~Model3dController() {
 
 void Model3dController::setup() {
     ofSetWindowTitle("3d mode");
+
+	ofDisableArbTex();
     ofDisableAlphaBlending();
+
     this->history = HistoryManager::getInstance()->getFromController(this);
-    model1 = new ofxAssimpModelLoader();
-    model1->loadModel("model1.obj");
-    model2 = new ofxAssimpModelLoader();
-    model2->loadModel("model2.obj");
+
+	loadData();
+
     enableEvents();
+
     light.enable();
     light.setPosition(ofVec3f(100, 100, 200));
     light.lookAt(ofVec3f(0, 0, 0));
+
+	texMod.setup();
+}
+
+void Model3dController::loadData() {
+	model1 = new ofxAssimpModelLoader();
+	model1->loadModel("model1.obj");
+	model2 = new ofxAssimpModelLoader();
+	model2->loadModel("model2.obj");
 }
 
 void Model3dController::draw() {
@@ -96,6 +108,7 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
             for (int i = 0; i < selection.size(); i++) {
                 this->transform(selection[i].get(), -1);
             }
+			break;
         case 90: {
             auto it = container.end();
             if (it != container.begin()) {
@@ -105,6 +118,23 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
             }
             break;
         }
+		case 101://e
+			for (auto it : selection) {
+				it->setTexture(texMod.compositionTexture());
+			}
+			break;
+		case 119://w
+			//passe a travers les filtres sur les objets selectionnees
+			for (auto it : selection) {
+				it->setTexture(texMod.cycleFiltre());
+			}
+			break;
+		case 113://q
+			//apply texture 1 ou 2
+			for (auto it : selection) {
+				it->setTexture(texMod.cycleTexture());
+			}
+			break;
         case 114://r
             this->transformType = TransformType::ROTATE;
             break;
@@ -202,17 +232,46 @@ void Model3dController::createSphere(const ofVec3f &position, const ofVec2f &sta
 
 void Model3dController::transform(Object3d *obj, int direction) {
     switch (transformType) {
-        case TransformType::ROTATE:
-            obj->rotate(direction * 5, ofVec3f(xRotate, yRotate, zRotate));
+		case TransformType::ROTATE: 
+			rotate(obj, direction);
             break;
         case TransformType::SCALE:
-            obj->modifyScale(ofVec3f(direction * xScale, direction * yScale, direction * zScale));
+			scale(obj, direction);
             break;
         case TransformType::TRANSLATE:
-            obj->translate(ofVec3f(direction * xTranslate, direction * yTranslate, direction * zTranslate));
-            break;
+			translate(obj, direction);
+            break; 
     }
 }
+
+void Model3dController::rotate(Object3d * obj, int direction)
+{
+	ofVec3f axe(xRotate, yRotate, zRotate);
+	obj->rotate(direction * 5, axe);
+	auto undoFunction = [obj, direction, axe] { obj->rotate(direction * -5, axe); };
+	auto redoFunction = [obj, direction, this] {this->rotate(obj, direction); };
+	DEFINE_REDO(this->history, undoFunction, redoFunction);
+}
+
+void Model3dController::translate(Object3d * obj, int direction)
+{
+	ofVec3f axe(xTranslate, yTranslate, zTranslate);
+	obj->translate(direction*axe);
+	auto undoFunction = [obj, direction, axe] { obj->translate(axe*-direction); };
+	auto redoFunction = [obj, direction, this] {this->translate(obj, direction); };
+	DEFINE_REDO(this->history, undoFunction, redoFunction);
+}
+
+void Model3dController::scale(Object3d * obj, int direction)
+{	
+	ofVec3f axe(xScale, yScale, zScale);
+	obj->modifyScale(ofVec3f(axe*direction));
+	auto undoFunction = [obj,direction, axe] {obj->modifyScale(axe*-direction); };
+	auto redoFunction = [obj, direction, this] {this->scale(obj, direction); };
+	DEFINE_REDO(this->history, undoFunction, redoFunction);
+}
+
+
 
 void Model3dController::addItem(Object3d_Ptr ptr) {
     container.push_back(ptr);

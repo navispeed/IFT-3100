@@ -33,5 +33,9 @@ private:
           redoFct); \
     } while (false)
 
+#define DEFINE_REDO(history, undoFct, redoFct) do { \
+          (history)->add(undoFct, \
+          redoFct); \
+    } while (false)
 
 #endif //IFT_3100_HISTORY_H

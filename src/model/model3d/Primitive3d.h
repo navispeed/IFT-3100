@@ -11,7 +11,10 @@ public:
 	void rotate(float angle, ofVec3f axis) override;
 	void translate(ofVec3f translation) override;
 	void modifyScale(ofVec3f scaleAdjust) override;
+	ofImage getTexture() override;
+	void setTexture(ofImage texture) override;
 	ofNode *getAsOfNode() override;
 private:
 	of3dPrimitive * primitive;
+	ofImage texture;
 };

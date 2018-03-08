@@ -8,16 +8,18 @@
 #include <model/model3d/Primitive3d.h>
 #include <services/history/History.h>
 #include <model/constant.h>
-#include "ofxAssimpModelLoader.h"
+#include <ofxAssimpModelLoader.h>
+#include <services/textureModifier/TextureModifier.h>
 
+enum class FormMode {
+	NONE, MODEL1, MODEL2, BOX, SPHERE
+};
+enum class TransformType {
+	TRANSLATE, SCALE, ROTATE
+};
 class Model3dController : public AController {
 private:
-    enum class FormMode {
-        NONE, MODEL1, MODEL2, BOX, SPHERE
-    };
-    enum class TransformType {
-        TRANSLATE, SCALE, ROTATE
-    };
+   
     FormMode formMode = FormMode::NONE;
     TransformType transformType = TransformType::SCALE;
 
@@ -43,14 +45,18 @@ private:
     ofxAssimpModelLoader *model1;
     ofxAssimpModelLoader *model2;
 
+	ofLight light;
+
+	textureModifier texMod;
+
     History *history = nullptr;
-    ofImage image;
-    ofTexture mTex;
-    ofLight light;
+
 public:
     ~Model3dController();
 
-    void setup() override;
+	void setup() override;
+
+	void loadData();
 
     void draw() override;
 
@@ -71,6 +77,12 @@ public:
     void createSphere(const ofVec3f &position, const ofVec2f &startPoint);
 
     void transform(Object3d *obj, int direction);
+
+	void rotate(Object3d *obj, int direction);
+
+	void translate(Object3d *obj, int direction);
+	
+	void scale(Object3d *obj, int direction);
 
     void addItem(Object3d_Ptr ptr);
 

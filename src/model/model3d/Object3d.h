@@ -12,4 +12,8 @@ public:
 	virtual void modifyScale(ofVec3f scaleAdjust) = 0;
 
 	virtual ofNode* getAsOfNode()= 0;
+	
+	virtual ofImage getTexture()=0;
+
+	virtual void setTexture(ofImage texture) = 0;
 };

@@ -71,6 +71,16 @@ void Model3d::adjustangle(const float adjust, float & angle)
 	}
 }
 
+ofImage Model3d::getTexture()
+{
+	return texture;
+}
+
+void Model3d::setTexture(ofImage texture)
+{
+	this->texture = texture;
+}
+
 ofNode *Model3d::getAsOfNode() {
 	return nullptr;
 }

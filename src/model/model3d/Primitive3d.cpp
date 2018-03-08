@@ -12,7 +12,9 @@ Primitive3d::Primitive3d(of3dPrimitive * primitive)
 
 void Primitive3d::drawObject()
 {
+	this->texture.bind();
 	this->primitive->draw();
+	this->texture.unbind();
 }
 
 void Primitive3d::rotate(float angle, ofVec3f axis)
@@ -27,7 +29,18 @@ void Primitive3d::translate(ofVec3f translation)
 
 void Primitive3d::modifyScale(ofVec3f scaleAdjust)
 {
-	this->primitive->setScale(this->primitive->getScale() + scaleAdjust);
+	ofVec3f scale = this->primitive->getScale() + scaleAdjust;
+	this->primitive->setScale(scale);
+}
+
+ofImage Primitive3d::getTexture()
+{
+	return texture;
+}
+
+void Primitive3d::setTexture(ofImage texture)
+{
+	this->texture = texture;
 }
 
 ofNode *Primitive3d::getAsOfNode() {
