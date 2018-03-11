@@ -37,9 +37,11 @@ void Model3dController::setup() {
     // light.setPosition(ofVec3f(100, 100, 200));
     // light.lookAt(ofVec3f(0, 0, 0));
 
-
-
-	texMod.setup();
+	string list[3];
+	for (int i = 1; i <= 3; i++) {
+		list[i - 1] = "texture" + to_string(i)+".jpg";
+	}
+	texMod = textureModifier(list,3);
 }
 
 ofxAssimpModelLoader* Model3dController::loadModel(string path) {

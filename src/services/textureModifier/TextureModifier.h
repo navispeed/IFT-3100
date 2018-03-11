@@ -68,8 +68,8 @@ class textureModifier {
 	// fonction de filtrage par convolution
 	private:
 
-		static const int nbTexture = 3;
-		ofImage textures[nbTexture];
+		int nbTexture;
+		vector<ofImage> textures;
 
 		ofImage textureActuel;
 		ofImage textureRetour;
@@ -82,7 +82,9 @@ class textureModifier {
 		int cText = 0;
 
 	public:
-		void setup();
+		textureModifier() {};
+
+		textureModifier(string path[], int nbTexture);
 
 		ofImage filter(ofImage textureOrig, ConvolutionKernel kernel);
 
