@@ -31,8 +31,24 @@ CanvasController::CanvasController()
 	gui = new ofxDatGui(10, 10);
 	colorFillPicker = gui->addColorPicker("Fill color");
 	colorOutLinePicker = gui->addColorPicker("Out line color");
-	colorFillPicker->setColor(0, 255, 0);
-	colorOutLinePicker->setColor(255, 0, 0);
+	weightSlider = gui->addSlider("Line weight", 0, 80, 1);
+
+	weightSlider->setPrecision(0);
+	colorFillPicker->setColor(this->drawOption->getFillColor());
+	colorOutLinePicker->setColor(this->drawOption->getOutLineColor());
+
+	colorFillPicker->onColorPickerEvent([&](ofxDatGuiColorPickerEvent e) {
+		this->drawOption->setFillColor(e.color);
+	});
+
+	colorOutLinePicker->onColorPickerEvent([&](ofxDatGuiColorPickerEvent e) {
+		this->drawOption->setOutLineColor(e.color);
+	});
+
+	weightSlider->onSliderEvent([&](ofxDatGuiSliderEvent e) {
+		this->drawOption->setWeight(e.value);
+	});
+	
 	gui->setVisible(false);
 }
 
@@ -58,14 +74,6 @@ void CanvasController::draw() {
         ofDrawCircle(point, 3);
     }
     ofSetColor(CanvasController::defColor);
-	this->drawOption->setFillColor(colorFillPicker->getColor());
-	this->drawOption->setOutLineColor(colorOutLinePicker->getColor());
-
-}
-
-void CanvasController::resetSettings()
-{
-
 }
 
 void CanvasController::enableEvents() {
