@@ -62,7 +62,7 @@ public:
 
 	void setup() override;
 
-	void loadData();
+	ofxAssimpModelLoader* loadModel(string path);
 
     void draw() override;
 
