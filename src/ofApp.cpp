@@ -1,6 +1,5 @@
 #include "ofApp.h"
 #include "controllers/ControllerFactory.h"
-#include "services/cursors/CursorManager.h"
 
 //--------------------------------------------------------------
 void ofApp::setup() {

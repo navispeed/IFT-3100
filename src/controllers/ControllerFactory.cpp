@@ -1,9 +1,4 @@
-//
-// Created by Grégoire GUEMAS on 18-02-15.
-//
-
 #include "ControllerFactory.h"
-#include "CanvasController.h"
 
 AController *ControllerFactory::getDefaultController() {
     auto *canvas = getCanvasController();

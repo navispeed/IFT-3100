@@ -14,8 +14,10 @@ std::shared_ptr<of2d> of2dFactory::getLine() {
 
 std::shared_ptr<of2d> of2dFactory::getCircle() {
 //    return std::make_shared<of2d>(new of());
+	return nullptr;
 }
 
 std::shared_ptr<of2d> of2dFactory::getRectangle() {
 //    return std::make_shared<of2d>(new ofPolyline());
+	return nullptr;
 }

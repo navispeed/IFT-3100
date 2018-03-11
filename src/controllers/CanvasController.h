@@ -14,6 +14,7 @@
 #include <services/history/History.h>
 #include <model/constant.h>
 #include <services/drawOption/DrawOption.h>
+#include "ofxDatGui.h"
 
 
 #define LIST_CONTAIN_0_ELEMENT(cond, action) if (cond) {action; return;}
@@ -59,6 +60,9 @@ private:
     OfCanvasPtr canvas = nullptr;
     History *history = nullptr;
     DrawOption *drawOption = DrawOption::getInstance();
+	ofxDatGui *gui;
+	ofxDatGuiColorPicker *colorFillPicker = nullptr;
+	ofxDatGuiColorPicker *colorOutLinePicker = nullptr;
 
     void onMouseRelease(ofMouseEventArgs &evt);
 

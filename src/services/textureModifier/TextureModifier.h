@@ -66,34 +66,35 @@ const std::array<float, 9> convolution_kernel_blur
 
 class textureModifier {
 	// fonction de filtrage par convolution
-private:
+	private:
 
-	static const int nbTexture=3;
-	ofImage textures[nbTexture];
+		static const int nbTexture = 3;
+		ofImage textures[nbTexture];
 
-	ofImage textureActuel;
-	ofImage textureRetour;
+		ofImage textureActuel;
+		ofImage textureRetour;
 
-	ConvolutionKernel kernel_type;
-	Composition compOption;
+		ConvolutionKernel kernel_type;
+		Composition compOption;
 
-	int image_width;
-	int image_height;
-	int cText=0;
+		int image_width;
+		int image_height;
+		int cText = 0;
 
 	public:
-	void setup();
-	
-	ofImage filter(ofImage textureOrig, ConvolutionKernel kernel);
+		void setup();
 
-	void cycleTexture();
+		ofImage filter(ofImage textureOrig, ConvolutionKernel kernel);
 
-	ofImage getNextTexture();
+		void cycleTexture();
 
-	ofImage applyTexture();
+		ofImage getNextTexture();
 
-	ConvolutionKernel cycleFiltre();
+		ofImage applyTexture();
 
-	ofImage compositionTexture(ofImage texture1, ofImage texture2, Composition comp);
+		ConvolutionKernel cycleFiltre();
 
-	Composition cycleComposition();
+		ofImage compositionTexture(ofImage texture1, ofImage texture2, Composition comp);
+
+		Composition cycleComposition();
+};

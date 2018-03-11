@@ -30,6 +30,11 @@ void CanvasController::setup() {
     this->setState(NONE);
     this->history = HistoryManager::getInstance()->getFromController(this);
     ofSetCircleResolution(100);
+	gui = new ofxDatGui(10, 10);
+	colorFillPicker = gui->addColorPicker("Fill color");
+	colorOutLinePicker = gui->addColorPicker("Out line color");
+	colorFillPicker->setColor(0, 255, 0);
+	colorOutLinePicker->setColor(255, 0, 0);
 }
 
 void CanvasController::draw() {
@@ -47,6 +52,11 @@ void CanvasController::draw() {
         ofDrawCircle(point, 3);
     }
     ofSetColor(CanvasController::defColor);
+	if (colorFillPicker != nullptr) {
+		// colorFillPicker->draw();
+		this->drawOption->setFillColor(colorFillPicker->getColor());
+		this->drawOption->setOutLineColor(colorOutLinePicker->getColor());
+	}
 }
 
 void CanvasController::enableEvents() {
@@ -73,6 +83,9 @@ void CanvasController::setState(CanvasController::STATE state) {
 }
 
 void CanvasController::onMousePressed(ofMouseEventArgs &evt) {
+	if (evt.x < 300 && evt.y < 150) {
+		return;
+	}
     if (this->state == NONE) {
         this->pointList.emplace_back(evt.x, evt.y);
         return;
