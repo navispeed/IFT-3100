@@ -9,7 +9,8 @@ void textureModifier::setup()
 		fileName = "texture" + to_string(i) + ".jpg";
 		if (!textures[i - 1].load(fileName)) {
 			std::cout << "Impossible de lire le fichier: " + fileName << endl;
-			throw runtime_error("Absence du fichier: " + fileName);
+			textures[i - 1].allocate(256, 256, OF_IMAGE_COLOR);
+			textures[i - 1].setColor(ofColor::black);
 		}
 	}
 	textureActuel = textures[0];
