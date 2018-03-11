@@ -49,6 +49,10 @@ public:
 
     void load(OfCanvasPtr canvas);
 
+	void load(std::string &path);
+
+	void save(std::string &path);
+
     OfCanvasPtr getCanvas();
 
 protected:
