@@ -54,7 +54,7 @@ CanvasController::CanvasController()
 	saveBtn->onButtonEvent([&](ofxDatGuiButtonEvent e) {
 		ofFileDialogResult saveFileResult = ofSystemSaveDialog("Save","Save your file");
 		if (saveFileResult.bSuccess) {
-			save(saveFileResult.fileName);
+			save(saveFileResult.filePath);
 		}
 	});
 
@@ -62,7 +62,7 @@ CanvasController::CanvasController()
 		ofFileDialogResult openFileResult = ofSystemLoadDialog("Select a jpg or png");
 
 		if (openFileResult.bSuccess) {
-			load(openFileResult.fileName);
+			load(openFileResult.filePath);
 		}
 		else {
 			
@@ -249,10 +249,10 @@ void CanvasController::load(OfCanvasPtr canvas) {
 
 void CanvasController::load(std::string &path) {
 	auto p = this->pointList;
-    auto draw = [&]() {
+    auto draw = [this, p, path]() {
 		ofImage i = ofImage();
 
-		if (this->pointList.size() < 1 || this->pointList.size() > 2) {
+		if (p.size() < 1 || p.size() > 2) {
 			ofSetWindowTitle("L'import d'une image nécéssite entre 1 et 2 points");
 			return;
 		}
@@ -263,14 +263,17 @@ void CanvasController::load(std::string &path) {
 
 		float w = i.getWidth();
 		float h = i.getHeight();
-		if (this->pointList.size() == 2) {
-			const ofVec2f &f = this->pointList[0] - this->pointList[1];
+        auto x = p[0].x ;
+        auto y = p[0].y;
+		if (p.size() == 2) {
+			const ofVec2f &f = p[0] - p[1];
 			w = abs(f.x);
 			h = abs(f.y);
+            x = p[0].x < p[1].x ? p[0].x : p[1].x;
+            y = p[0].y < p[1].y ? p[0].y : p[1].y;
 		}
 
-		auto x = p[0].x < p[1].x ? p[0].x : p[1].x;
-		auto y = p[0].y < p[1].y ? p[0].y : p[1].y;
+
 
         i.draw(x, y, w, h);
     };
