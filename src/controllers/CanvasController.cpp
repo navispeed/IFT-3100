@@ -54,7 +54,12 @@ CanvasController::CanvasController()
 	saveBtn->onButtonEvent([&](ofxDatGuiButtonEvent e) {
 		ofFileDialogResult saveFileResult = ofSystemSaveDialog("Save","Save your file");
 		if (saveFileResult.bSuccess) {
-			save(saveFileResult.filePath);
+			std::string filePath = saveFileResult.filePath;
+			std::string ext = filePath.substr(filePath.find_last_of(".") + 1);
+			if (ext != "png" || ext != "jpg") {
+				filePath += ".png";
+			}
+			save(filePath);
 		}
 	});
 
