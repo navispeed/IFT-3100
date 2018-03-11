@@ -28,6 +28,8 @@ private:
     const int ROTATEDISTANCE = 1;
     const float SCALEDISTANCE = 0.05;
 
+	int current = -1;
+
     int xRotate = ROTATEDISTANCE;
     float xScale = SCALEDISTANCE;
     int xTranslate = TRANSLATEDISTANCE;
@@ -38,7 +40,7 @@ private:
     float zScale = SCALEDISTANCE;
     int zTranslate = 0;
 
-    std::list<Object3d_Ptr> container;
+    std::vector<Object3d_Ptr> container;
     std::vector<Object3d_Ptr> selection;
     ofVec2f *initialPoint = nullptr;
 
@@ -50,6 +52,8 @@ private:
 	textureModifier texMod;
 
     History *history = nullptr;
+
+	void adjustCurrent();
 
 public:
     ~Model3dController();

@@ -1,9 +1,21 @@
 #include "Model3dController.h"
 #include <services/history/HistoryManager.h>
 
+void Model3dController::adjustCurrent()
+{
+	if (container.size() == 0) {
+		current = -1;
+	}
+	else {
+		current %= container.size();
+	}
+	selection.clear();
+	selection.push_back(container[current]);
+}
+
 Model3dController::~Model3dController() {
-    delete model1;
-    delete model2;
+	delete model1;
+	delete model2;
     delete initialPoint;
 }
 
@@ -109,6 +121,14 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
                 this->transform(selection[i].get(), -1);
             }
 			break;
+		case 357:
+			current++;
+			adjustCurrent();
+			break;
+		case 359:
+			current--;
+			adjustCurrent();
+			break;
         case 90: {
             auto it = container.end();
             if (it != container.begin()) {
@@ -119,20 +139,30 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
             break;
         }
 		case 101://e
+		{
+			Composition comp = texMod.cycleComposition();
 			for (auto it : selection) {
-				it->setTexture(texMod.compositionTexture());
+				it->setTexture(texMod.compositionTexture(it->getTexture(), texMod.getNextTexture(),comp));
 			}
 			break;
-		case 119://w
+		}
+		case 119: {//w
 			//passe a travers les filtres sur les objets selectionnees
+			ConvolutionKernel filtre = texMod.cycleFiltre();
 			for (auto it : selection) {
-				it->setTexture(texMod.cycleFiltre());
+				it->setTexture(texMod.filter(it->getTexture(), filtre));
 			}
 			break;
+		}
 		case 113://q
-			//apply texture 1 ou 2
 			for (auto it : selection) {
-				it->setTexture(texMod.cycleTexture());
+				it->setTexture(texMod.applyTexture());
+			}
+			break;
+		case 81: //shift+q
+			texMod.cycleTexture();
+			for (auto it : selection) {
+				it->setTexture(texMod.applyTexture());
 			}
 			break;
         case 114://r
@@ -182,7 +212,11 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
             break;
         case 127://supprimer
             this->reset();
+			current = -1;
             break;
+		case 65://shift-a
+			selection.clear();
+			this->selection.insert(this->selection.end(), this->container.begin(), this->container.end());
         default:
             formMode = FormMode::NONE;
             break;

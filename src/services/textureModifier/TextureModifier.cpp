@@ -7,7 +7,10 @@ void textureModifier::setup()
 	stringstream ss;
 	for (int i = 1; i <= nbTexture; i++) {
 		fileName = "texture" + to_string(i) + ".jpg";
-		textures[i-1].load(fileName);
+		if (!textures[i - 1].load(fileName)) {
+			std::cout << "Impossible de lire le fichier: " + fileName << endl;
+			throw runtime_error("Absence du fichier: " + fileName);
+		}
 	}
 	textureActuel = textures[0];
 
@@ -18,7 +21,7 @@ void textureModifier::setup()
 
 
 // fonction de filtrage par convolution
-void textureModifier::filter()
+ofImage textureModifier::filter(ofImage textureOrig, ConvolutionKernel kernel)
 {
 	int ind;
 	int xOff;
@@ -28,8 +31,8 @@ void textureModifier::filter()
 	ofColor newColor;
 	ofColor color1;
 
-	int width = textureActuel.getWidth();
-	int height = textureActuel.getHeight();
+	int width = textureOrig.getWidth();
+	int height = textureOrig.getHeight();
 	textureRetour.allocate(width, height, OF_IMAGE_COLOR);
 	for (int y = 0; y < height; ++y)
 	{
@@ -46,7 +49,7 @@ void textureModifier::filter()
 					yOff = y + j;
 
 					if (xOff >= 0 && yOff >= 0 && xOff < width && yOff < height) {
-						switch (kernel_type)
+						switch (kernel)
 						{
 						case ConvolutionKernel::IDENTITY:
 							mod = convolution_kernel_identity.at(ind);
@@ -72,7 +75,7 @@ void textureModifier::filter()
 							mod = convolution_kernel_identity.at(ind);
 							break;
 						}
-						color1 = textureActuel.getColor(xOff, yOff);
+						color1 = textureOrig.getColor(xOff, yOff);
 						colors[0] += color1.r*mod;
 						colors[1] += color1.g*mod;
 						colors[2] += color1.b*mod;
@@ -86,14 +89,27 @@ void textureModifier::filter()
 		}
 	}
 	textureRetour.update();
+	return textureRetour;
+}
+
+void textureModifier::cycleTexture()
+{
+	++cText;
+	cText %= nbTexture;
+	textureActuel = textures[cText];
+}
+
+ofImage textureModifier::getNextTexture()
+{
+	return textures[(cText + 1) % nbTexture];
 }
 
 
-ofImage textureModifier::compositionTexture() {
+ofImage textureModifier::compositionTexture(ofImage texture1, ofImage texture2, Composition comp) {
 	int ind1 = cText;
 	int ind2 = (cText+1)%nbTexture;
-		int width = min(textures[ind1].getWidth(),textures[ind2].getWidth());
-		int height = min(textures[ind1].getHeight(), textures[ind2].getHeight());
+		int width = min(texture1.getWidth(),texture2.getWidth());
+		int height = min(texture1.getHeight(), texture2.getHeight());
 
 		textureRetour.allocate(width, height, OF_IMAGE_COLOR);
 
@@ -106,9 +122,9 @@ ofImage textureModifier::compositionTexture() {
 		{
 			for (int x = 0; x < width; ++x)
 			{
-				color1 = textures[cText].getColor(x, y);
-				color2 = textures[(cText+1)%nbTexture].getColor(x, y);
-				switch (compOption) {
+				color1 = texture1.getColor(x, y);
+				color2 = texture2.getColor(x, y);
+				switch (comp) {
 				case Composition::DARKEN: {
 					int temp = color1.r + color1.b + color1.g;
 					int temp2 = color2.r + color2.b + color2.g;
@@ -142,63 +158,73 @@ ofImage textureModifier::compositionTexture() {
 				textureRetour.setColor(x,y,newColor);
 			}
 		}
-	switch (compOption) {
-	case Composition::DARKEN:
-		compOption = Composition::LIGHTEN;
-		break;
-	case Composition::LIGHTEN:
-		compOption = Composition::ADD;
-		break;
-	case Composition::ADD:
-		compOption = Composition::AVERAGE;
-		break;
-	case Composition::AVERAGE:
-		compOption = Composition::SUBSTRACT;
-		break;
-	case Composition::SUBSTRACT:
-		compOption = Composition::FOCUSFIRST;
-		break;
-	case Composition::FOCUSFIRST:
-		compOption = Composition::FOCUSSECOND;
-		break;
-	case Composition::FOCUSSECOND:
-		compOption = Composition::DARKEN;
-		break;
-
-	}
 	return textureRetour;
 }
 
-ofImage textureModifier::cycleTexture()
+Composition textureModifier::cycleComposition()
 {
-	++cText;
-	cText %= nbTexture;
-	std::cout << cText << endl;
-	textureActuel = textures[cText];
+	switch (compOption) {
+	case Composition::DARKEN:
+		compOption = Composition::LIGHTEN;
+		std::cout << "Composition: Lighten" << endl;
+		break;
+	case Composition::LIGHTEN:
+		compOption = Composition::ADD;
+		std::cout << "Composition: Add" << endl;
+		break;
+	case Composition::ADD:
+		compOption = Composition::AVERAGE;
+		std::cout << "Composition: Average" << endl;
+		break;
+	case Composition::AVERAGE:
+		compOption = Composition::SUBSTRACT;
+		std::cout << "Composition: Substract" << endl;
+		break;
+	case Composition::SUBSTRACT:
+		compOption = Composition::FOCUSFIRST;
+		std::cout << "Composition: FocusFirst" << endl;
+		break;
+	case Composition::FOCUSFIRST:
+		compOption = Composition::FOCUSSECOND;
+		std::cout << "Composition: FocusSecond" << endl;
+		break;
+	case Composition::FOCUSSECOND:
+		compOption = Composition::DARKEN;
+		std::cout << "Composition: Darken" << endl;
+		break;
+	}
+	return compOption;
+}
+
+ofImage textureModifier::applyTexture()
+{
 	return textureActuel;
 }
 
-ofImage textureModifier::cycleFiltre()
+ConvolutionKernel textureModifier::cycleFiltre()
 {
 	switch (kernel_type) {
 	case ConvolutionKernel::IDENTITY:
 		kernel_type = ConvolutionKernel::BLUR;
+		std::cout << "Filtre: Blur" << endl;
 		break;
 	case ConvolutionKernel::BLUR:
 		kernel_type = ConvolutionKernel::EDGE_DECTECT;
+		std::cout << "Filtre: Edge detect" << endl;
 		break;
 	case ConvolutionKernel::EDGE_DECTECT:
 		kernel_type = ConvolutionKernel::EMBOSS;
+		std::cout << "Filtre: Emboss" << endl;
 		break;
 	case ConvolutionKernel::EMBOSS:
 		kernel_type = ConvolutionKernel::SHARPEN;
+		std::cout << "Filtre: Sharpen" << endl;
 		break;
 	case ConvolutionKernel::SHARPEN:
 		kernel_type = ConvolutionKernel::IDENTITY;
+		std::cout << "Filtre: Identity" << endl;
 		break;
 	}
-	filter();
-	return textureRetour;
+
+	return kernel_type;
 }
-
-

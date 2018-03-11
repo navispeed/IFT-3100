@@ -70,28 +70,30 @@ private:
 
 	static const int nbTexture=3;
 	ofImage textures[nbTexture];
-	ofImage texture1;
-	ofImage texture2;
-	ofImage texture3;
 
 	ofImage textureActuel;
 	ofImage textureRetour;
 
 	ConvolutionKernel kernel_type;
 	Composition compOption;
+
+	int image_width;
+	int image_height;
 	int cText=0;
 
 	public:
 	void setup();
 	
-	
+	ofImage filter(ofImage textureOrig, ConvolutionKernel kernel);
 
-	int image_width;
-	int image_height;
-	
-	void filter();
-	ofImage cycleTexture();
-	ofImage cycleFiltre();
-	ofImage compositionTexture();
+	void cycleTexture();
 
-};
+	ofImage getNextTexture();
+
+	ofImage applyTexture();
+
+	ConvolutionKernel cycleFiltre();
+
+	ofImage compositionTexture(ofImage texture1, ofImage texture2, Composition comp);
+
+	Composition cycleComposition();
