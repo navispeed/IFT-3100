@@ -12,7 +12,7 @@
 #include <services/textureModifier/TextureModifier.h>
 
 enum class FormMode {
-	NONE, MODEL1, MODEL2, BOX, SPHERE
+	NONE, MODEL1, MODEL2, BOX, SPHERE, CYLINDER, CONE
 };
 enum class TransformType {
 	TRANSLATE, SCALE, ROTATE
@@ -79,6 +79,10 @@ public:
     void createBox(const ofVec3f &position, const ofVec2f &startPoint);
 
     void createSphere(const ofVec3f &position, const ofVec2f &startPoint);
+
+	void createCone(const ofVec3f &position, const ofVec2f &startPoint);
+
+	void createCylinder(const ofVec3f &position, const ofVec2f &startPoint);
 
     void transform(Object3d *obj, int direction);
 

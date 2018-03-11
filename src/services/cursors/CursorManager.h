@@ -10,6 +10,8 @@
 #include "CircleCursor.h"
 #include "SphereCursor.h"
 #include "CubeCursor.h"
+#include "CylinderCursor.h"
+#include "ConeCursor.h"
 
 class CursorManager {
 public:
@@ -18,7 +20,9 @@ public:
         CIRCLE,
         LINE,
 		SPHERE,
-		CUBE
+		CUBE,
+		CYLINDER,
+		CONE
     };
 
     void setDefaultCursor();

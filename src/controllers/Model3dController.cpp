@@ -111,6 +111,16 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
             std::cout << "modeSphere" << std::endl;
             CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::SPHERE);
             break;
+		case 109://m
+			formMode = FormMode::CYLINDER;
+			std::cout << "modeCylinder" << std::endl;
+			CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::CYLINDER);
+			break;
+		case 110://n
+			formMode = FormMode::CONE;
+			std::cout << "modeCONE" << std::endl;
+			CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::CONE);
+			break;
         case 356://fleche
             for (int i = 0; i < selection.size(); i++) {
                 this->transform(selection[i].get(), 1);
@@ -231,6 +241,12 @@ void Model3dController::onMouseReleased(ofMouseEventArgs &evt) {
         case FormMode::SPHERE:
             this->createSphere(ofVec3f(evt.x, evt.y, 0), *(this->initialPoint));
             break;
+		case FormMode::CONE:
+			this->createCone(ofVec3f(evt.x, evt.y, 0), *(this->initialPoint));
+			break;
+		case FormMode::CYLINDER:
+			this->createCylinder(ofVec3f(evt.x, evt.y, 0), *(this->initialPoint));
+			break;
         default:
             break;
     }
@@ -262,6 +278,32 @@ void Model3dController::createSphere(const ofVec3f &position, const ofVec2f &sta
 
     auto redoFunction = [position, this, startPoint]() { this->createSphere(position, startPoint); };
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
+}
+
+void Model3dController::createCone(const ofVec3f &position, const ofVec2f &startPoint) {
+	auto temp = new ofConePrimitive();
+	float size = startPoint.distance(ofVec2f(position.x, position.y));
+	temp->setRadius(size / 2);
+	temp->setHeight(size / 2);
+	temp->setPosition(position);
+	auto ptr = std::make_shared<Primitive3d>(temp);
+	this->addItem(ptr);
+
+	auto redoFunction = [position, this, startPoint]() { this->createCone(position, startPoint); };
+	DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
+}
+
+void Model3dController::createCylinder(const ofVec3f &position, const ofVec2f &startPoint) {
+	auto temp = new ofCylinderPrimitive();
+	float size = startPoint.distance(ofVec2f(position.x, position.y));
+	temp->setRadius(size / 2);
+	temp->setHeight(size / 2);
+	temp->setPosition(position);
+	auto ptr = std::make_shared<Primitive3d>(temp);
+	this->addItem(ptr);
+
+	auto redoFunction = [position, this, startPoint]() { this->createCylinder(position, startPoint); };
+	DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
 }
 
 void Model3dController::transform(Object3d *obj, int direction) {

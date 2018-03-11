@@ -32,6 +32,12 @@ void CursorManager::setCursor(CursorManager::CURSOR_TYPE type) {
 		case CUBE:
 			this->instance = new CubeCursor();
 			break;
+		case CYLINDER:
+			this->instance = new CylinderCursor();
+			break;
+		case CONE:
+			this->instance = new ConeCursor();
+			break;
     }
     this->instance->enable();
 }
