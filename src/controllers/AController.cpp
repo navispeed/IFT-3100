@@ -4,10 +4,16 @@
 
 #include <events/ofEventUtils.h>
 #include "AController.h"
+#include "ofSystemUtils.h"
 
 void AController::enableEvents() {
 }
 
 void AController::disableEvents() {
 
+}
+
+void AController::showError(const std::string &message)
+{
+	ofSystemAlertDialog(message);
 }

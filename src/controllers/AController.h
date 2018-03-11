@@ -31,6 +31,8 @@ protected:
 
     virtual void disableEvents() = 0;
 
+	void showError(const std::string &message);
+
 private:
     bool enabled = false;
 };

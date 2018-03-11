@@ -89,8 +89,6 @@ private:
     void drawPolygon(const ofColor &color, const vector<ofVec2f> &pointList);
 
     otherObjectDrawCall drawIt(otherObjectDrawCall fct, bool toFill);
-
-	void showError(const char* errorMessage);
 };
 
 
