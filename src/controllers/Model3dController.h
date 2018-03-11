@@ -53,6 +53,8 @@ private:
 
     History *history = nullptr;
 
+	ofEasyCam cam;
+
 	void adjustCurrent();
 
 public:

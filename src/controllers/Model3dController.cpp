@@ -35,6 +35,8 @@ void Model3dController::setup() {
     light.setPosition(ofVec3f(100, 100, 200));
     light.lookAt(ofVec3f(0, 0, 0));
 
+
+
 	texMod.setup();
 }
 
