@@ -70,7 +70,6 @@ CanvasController::CanvasController()
 			load(openFileResult.filePath);
 		}
 		else {
-			
 		}
 	});
 	
@@ -277,9 +276,6 @@ void CanvasController::load(std::string &path) {
             x = p[0].x < p[1].x ? p[0].x : p[1].x;
             y = p[0].y < p[1].y ? p[0].y : p[1].y;
 		}
-
-
-
         i.draw(x, y, w, h);
     };
     auto redoFunction = [draw, this]() {
@@ -293,9 +289,12 @@ void CanvasController::load(std::string &path) {
 }
 
 void CanvasController::save(std::string &path) {
-    ofImage i;
-
-    this->getCanvas()->getCapture()->save(path);
+    this->gui->setVisible(false);
+    this->otherObject.emplace_back([&, path]() {
+        this->getCanvas()->getCapture()->save(path);
+        this->gui->setVisible(true);
+        this->otherObject.pop_back();
+    });
 }
 
 void CanvasController::reset() {
