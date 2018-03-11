@@ -27,7 +27,9 @@ void Model3dController::setup() {
 
     this->history = HistoryManager::getInstance()->getFromController(this);
 
-	loadData();
+	model1 = loadModel("model1.obj");
+	model2 = loadModel("model2.obj");
+
 
     enableEvents();
 
@@ -40,11 +42,12 @@ void Model3dController::setup() {
 	texMod.setup();
 }
 
-void Model3dController::loadData() {
-	model1 = new ofxAssimpModelLoader();
-	model1->loadModel("model1.obj");
-	model2 = new ofxAssimpModelLoader();
-	model2->loadModel("model2.obj");
+ofxAssimpModelLoader* Model3dController::loadModel(string path) {
+	ofxAssimpModelLoader * modelTemp = new ofxAssimpModelLoader();
+	if (!modelTemp->loadModel(path)) {
+		std::cout << "<Erreur> impossible de lire: " + path << endl;
+	}
+	return modelTemp;
 }
 
 void Model3dController::draw() {
