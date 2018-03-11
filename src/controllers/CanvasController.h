@@ -41,8 +41,6 @@ public:
 
     void draw() override;
 
-	void resetSettings() override;
-
     void setState(CanvasController::STATE state);
 
     void reset();
@@ -71,6 +69,7 @@ private:
 	ofxDatGui *gui = nullptr;
 	ofxDatGuiColorPicker *colorFillPicker = nullptr;
 	ofxDatGuiColorPicker *colorOutLinePicker = nullptr;
+	ofxDatGuiSlider *weightSlider = nullptr;
 
     void onMouseRelease(ofMouseEventArgs &evt);
 

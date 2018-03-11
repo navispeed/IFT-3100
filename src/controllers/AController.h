@@ -26,8 +26,6 @@ public:
         }
     }
 
-	virtual void resetSettings();
-
 protected:
     virtual void enableEvents() = 0;
 

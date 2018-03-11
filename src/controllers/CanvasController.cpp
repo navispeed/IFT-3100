@@ -16,30 +16,47 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "InfiniteRecursion"
 const std::map<int, const char *> CanvasController::stateToString = {
-        {NONE, ""},
-        {STATE::RECTANGLE, "Rectangle"},
-        {STATE::POLYGONE, "Polygone"},
-        {STATE::CIRCLE, "Cercle"},
-        {STATE::LINE, "Ligne"},
-        {STATE::TRIANGLE, "Triangle"},
-        {STATE::REC_TREE, "Arbre récursif"},
+        {NONE,              ""},
+        {STATE::RECTANGLE,  "Rectangle"},
+        {STATE::POLYGONE,   "Polygone"},
+        {STATE::CIRCLE,     "Cercle"},
+        {STATE::LINE,       "Ligne"},
+        {STATE::TRIANGLE,   "Triangle"},
+        {STATE::REC_TREE,   "Arbre récursif"},
         {STATE::SIERPINSKI, "Sierpinski"},
 };
 
-CanvasController::CanvasController() {
-    gui = new ofxDatGui(10, 10);
-    colorFillPicker = gui->addColorPicker("Fill color");
-    colorOutLinePicker = gui->addColorPicker("Out line color");
-    colorFillPicker->setColor(0, 255, 0);
-    colorOutLinePicker->setColor(255, 0, 0);
-    gui->setVisible(false);
+CanvasController::CanvasController()
+{
+	gui = new ofxDatGui(10, 10);
+	colorFillPicker = gui->addColorPicker("Fill color");
+	colorOutLinePicker = gui->addColorPicker("Out line color");
+	weightSlider = gui->addSlider("Line weight", 0, 80, 1);
+
+	weightSlider->setPrecision(0);
+	colorFillPicker->setColor(this->drawOption->getFillColor());
+	colorOutLinePicker->setColor(this->drawOption->getOutLineColor());
+
+	colorFillPicker->onColorPickerEvent([&](ofxDatGuiColorPickerEvent e) {
+		this->drawOption->setFillColor(e.color);
+	});
+
+	colorOutLinePicker->onColorPickerEvent([&](ofxDatGuiColorPickerEvent e) {
+		this->drawOption->setOutLineColor(e.color);
+	});
+
+	weightSlider->onSliderEvent([&](ofxDatGuiSliderEvent e) {
+		this->drawOption->setWeight(e.value);
+	});
+
+	gui->setVisible(false);
 }
 
 void CanvasController::setup() {
     this->setState(NONE);
     this->history = HistoryManager::getInstance()->getFromController(this);
     ofSetCircleResolution(100);
-
+	
 }
 
 void CanvasController::draw() {
@@ -57,28 +74,21 @@ void CanvasController::draw() {
         ofDrawCircle(point, 3);
     }
     ofSetColor(CanvasController::defColor);
-    this->drawOption->setFillColor(colorFillPicker->getColor());
-    this->drawOption->setOutLineColor(colorOutLinePicker->getColor());
-
-}
-
-void CanvasController::resetSettings() {
-
 }
 
 void CanvasController::enableEvents() {
     ofAddListener(ofEvents().mousePressed, this, &CanvasController::onMousePressed);
     ofAddListener(ofEvents().mouseReleased, this, &CanvasController::onMouseRelease);
     ofAddListener(ofEvents().keyReleased, this, &CanvasController::onKeyRelease);
-    gui->setVisible(true);
+	gui->setVisible(true);
 }
 
 void CanvasController::disableEvents() {
     ofRemoveListener(ofEvents().mousePressed, this, &CanvasController::onMousePressed);
     ofRemoveListener(ofEvents().mouseReleased, this, &CanvasController::onMouseRelease);
     ofRemoveListener(ofEvents().keyReleased, this, &CanvasController::onKeyRelease);
-    gui->setVisible(false);
-
+	gui->setVisible(false);
+	
 }
 
 void CanvasController::setState(CanvasController::STATE state) {
@@ -93,9 +103,9 @@ void CanvasController::setState(CanvasController::STATE state) {
 }
 
 void CanvasController::onMousePressed(ofMouseEventArgs &evt) {
-    if (evt.x < 300 && evt.y < 150) {
-        return;
-    }
+	if (evt.x < 300 && evt.y < 150) {
+		return;
+	}
     if (this->state == NONE) {
         this->pointList.emplace_back(evt.x, evt.y);
         return;
@@ -107,9 +117,9 @@ void CanvasController::onMousePressed(ofMouseEventArgs &evt) {
 }
 
 void CanvasController::onMouseRelease(ofMouseEventArgs &evt) {
-    if (this->initialPoint == nullptr) {
-        return;
-    }
+	if (this->initialPoint == nullptr) {
+		return;
+	}
     switch (this->state) {
         case NONE:
             break;
@@ -117,13 +127,9 @@ void CanvasController::onMouseRelease(ofMouseEventArgs &evt) {
             ofPolyline line;
             line.addVertex(this->initialPoint->x, this->initialPoint->y);
             line.addVertex(evt.x, evt.y);
-            otherObjectDrawCall x = [line]() {
-                line.draw();
-            };
+            otherObjectDrawCall x = [line]() { line.draw(); };
             this->otherObject.push_back(drawIt(x, false));
-            auto redoFct = [x, this]() {
-                this->otherObject.push_back(drawIt(x, false));
-            };
+            auto redoFct = [x, this]() { this->otherObject.push_back(drawIt(x, false)); };
             DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFct);
             break;
         }
@@ -172,28 +178,24 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
         }
         case RECTANGLE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 2,
-                    std::string("2 points sont nécessaire pour un rectangle "));
+                                   std::string("2 points sont nécessaire pour un rectangle "));
             drawRectangleFromPoint(this->drawOption->getFillColor(), this->pointList);
             this->pointList.clear();
             break;
         }
         case TRIANGLE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 3,
-                    std::string("3 points sont nécessaire pour un triangle "))
+                                   std::string("3 points sont nécessaire pour un triangle "))
             drawTriangleFromPoint(this->drawOption->getFillColor(), this->pointList);
             this->pointList.clear();
             break;
         }
         case REC_TREE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 1,
-                    std::string("1 point est nécessaire pour un arbre "))
+                                   std::string("1 point est nécessaire pour un arbre "))
             const ofVec2f point = this->pointList[0];
-            auto draw = [point]() {
-                RecursiveTree().draw(point);
-            };
-            auto redoFunction = [draw, this]() {
-                this->otherObject.emplace_back(draw);
-            };
+            auto draw = [point]() { RecursiveTree().draw(point); };
+            auto redoFunction = [draw, this]() { this->otherObject.emplace_back(draw); };
             redoFunction();
             this->pointList.clear();
             DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
@@ -201,15 +203,11 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
         }
         case SIERPINSKI: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 1,
-                    std::string("1 point est nécessaire pour un arbre "))
+                                   std::string("1 point est nécessaire pour un arbre "))
             const auto point = this->pointList[0];
             const std::string simulation = Sierpinski(ofVec2f()).simulate(9);
-            auto draw = [point, simulation]() {
-                Sierpinski(point, 0.9f).render(simulation);
-            };
-            auto redoFunction = [draw, this]() {
-                this->otherObject.emplace_back(draw);
-            };
+            auto draw = [point, simulation]() { Sierpinski(point, 0.9f).render(simulation); };
+            auto redoFunction = [draw, this]() { this->otherObject.emplace_back(draw); };
             redoFunction();
             this->pointList.clear();
             DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
@@ -292,9 +290,7 @@ void CanvasController::drawTriangleFromPoint(const ofColor &color, const vector<
         ofDrawTriangle(vec[0].x, vec[0].y, vec[1].x, vec[1].y, vec[2].x, vec[2].y);
     };
     this->otherObject.push_back(drawIt(x, true));
-    auto redoFunction = [color, vec, this]() {
-        this->drawTriangleFromPoint(color, vec);
-    };
+    auto redoFunction = [color, vec, this]() { this->drawTriangleFromPoint(color, vec); };
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
 }
 
@@ -308,9 +304,7 @@ void CanvasController::drawRectangleFromPoint(const ofColor &color, const vector
         ofDrawRectangle(leftX, leftY, h, d);
     };
     this->otherObject.push_back(drawIt(x, true));
-    auto redoFunction = [color, vec, this]() {
-        this->drawRectangleFromPoint(color, vec);
-    };
+    auto redoFunction = [color, vec, this]() { this->drawRectangleFromPoint(color, vec); };
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
 }
 
@@ -324,9 +318,7 @@ void CanvasController::drawPolygon(const ofColor &color, const vector<ofVec2f> &
         ofEndShape(true);
     };
     otherObject.push_back(drawIt(x, true));
-    auto redoFunction = [color, vec, this]() {
-        this->drawPolygon(color, vec);
-    };
+    auto redoFunction = [color, vec, this]() { this->drawPolygon(color, vec); };
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
 }
 
