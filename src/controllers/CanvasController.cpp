@@ -181,7 +181,7 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
             break;
         case POLYGONE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.empty(), setState(POLYGONE))
-            LIST_CONTAIN_0_ELEMENT(this->pointList.size() < 3, showError("This is a test");)
+            LIST_CONTAIN_0_ELEMENT(this->pointList.size() < 3, showError("A polygon needs at least 3 points !");)
             drawPolygon(this->drawOption->getFillColor(), this->pointList);
             pointList.clear();
             break;
@@ -197,21 +197,21 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
         }
         case RECTANGLE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 2,
-                                   std::string("2 points sont nécessaire pour un rectangle "));
+                                   showError("A rectangle needs exactly 2 points !"));
             drawRectangleFromPoint(this->drawOption->getFillColor(), this->pointList);
             this->pointList.clear();
             break;
         }
         case TRIANGLE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 3,
-                                   std::string("3 points sont nécessaire pour un triangle "))
+                                   showError("A triangle needs exactly 3 points !"))
             drawTriangleFromPoint(this->drawOption->getFillColor(), this->pointList);
             this->pointList.clear();
             break;
         }
         case REC_TREE: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 1,
-                                   std::string("1 point est nécessaire pour un arbre "))
+                                   showError("A tree needs exactly 1 point to be draw !"))
             const ofVec2f point = this->pointList[0];
             auto draw = [point]() { RecursiveTree().draw(point); };
             auto redoFunction = [draw, this]() { this->otherObject.emplace_back(draw); };
@@ -222,7 +222,7 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
         }
         case SIERPINSKI: {
             LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 1,
-                                   std::string("1 point est nécessaire pour un arbre "))
+                                   showError("A sierpinski triangle needs exactly 1 point to be draw !"))
             const auto point = this->pointList[0];
             const std::string simulation = Sierpinski(ofVec2f()).simulate(9);
             auto draw = [point, simulation]() { Sierpinski(point, 0.9f).render(simulation); };
@@ -252,12 +252,12 @@ void CanvasController::load(std::string &path) {
 		ofImage i = ofImage();
 
 		if (p.size() < 1 || p.size() > 2) {
-			ofSetWindowTitle("L'import d'une image nécéssite entre 1 et 2 points");
+			showError("An import needs 1 or 2 points !");
 			return;
 		}
 
 		if (!i.load(path)) {
-			ofSetWindowTitle("Image invalide");
+			showError("Invalid image");
 		}
 
 		float w = i.getWidth();
@@ -362,11 +362,6 @@ otherObjectDrawCall CanvasController::drawIt(otherObjectDrawCall fct, bool toFil
         fct();
     };
     return f;
-}
-
-void CanvasController::showError(const char * errorMessage)
-{
-
 }
 
 #pragma clang diagnostic pop
