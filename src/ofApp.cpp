@@ -59,16 +59,19 @@ void ofApp::keyPressed(int key) {
     switch (key) {
         case 49:
             std::cout << "Controller Picture" << std::endl;
+			old->resetSettings();
             this->pManager->setDefaultCursor();
             this->controller = ControllerFactory::getPictureController();
             break;
         case 50:
             std::cout << "Controller 2D" << std::endl;
+			old->resetSettings();
             this->pManager->setDefaultCursor();
             this->controller = ControllerFactory::getCanvasController();
             break;
         case 51:
             std::cout << "Controller 3D" << std::endl;
+			old->resetSettings();
             this->pManager->setDefaultCursor();
 			this->controller = ControllerFactory::getModel3dController();
             break;

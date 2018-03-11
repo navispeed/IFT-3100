@@ -31,9 +31,9 @@ void Model3dController::setup() {
 
     enableEvents();
 
-    light.enable();
-    light.setPosition(ofVec3f(100, 100, 200));
-    light.lookAt(ofVec3f(0, 0, 0));
+    // light.enable();
+    // light.setPosition(ofVec3f(100, 100, 200));
+    // light.lookAt(ofVec3f(0, 0, 0));
 
 	texMod.setup();
 }
@@ -62,6 +62,7 @@ void Model3dController::disableEvents() {
     ofRemoveListener(ofEvents().mousePressed, this, &Model3dController::onMousePressed);
     ofRemoveListener(ofEvents().mouseReleased, this, &Model3dController::onMouseReleased);
     ofRemoveListener(ofEvents().keyPressed, this, &Model3dController::onKeyRelease);
+	ofDisableDepthTest();
 }
 
 void Model3dController::onMousePressed(ofMouseEventArgs &evt) {

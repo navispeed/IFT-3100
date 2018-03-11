@@ -35,9 +35,13 @@ public:
     };
     static const std::map<int, const char *> stateToString;
 
+	CanvasController();
+
     void setup() override;
 
     void draw() override;
+
+	void resetSettings() override;
 
     void setState(CanvasController::STATE state);
 
@@ -60,7 +64,7 @@ private:
     OfCanvasPtr canvas = nullptr;
     History *history = nullptr;
     DrawOption *drawOption = DrawOption::getInstance();
-	ofxDatGui *gui;
+	ofxDatGui *gui = nullptr;
 	ofxDatGuiColorPicker *colorFillPicker = nullptr;
 	ofxDatGuiColorPicker *colorOutLinePicker = nullptr;
 

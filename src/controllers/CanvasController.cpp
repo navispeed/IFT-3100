@@ -26,15 +26,21 @@ const std::map<int, const char *> CanvasController::stateToString = {
         {STATE::SIERPINSKI, "Sierpinski"},
 };
 
-void CanvasController::setup() {
-    this->setState(NONE);
-    this->history = HistoryManager::getInstance()->getFromController(this);
-    ofSetCircleResolution(100);
+CanvasController::CanvasController()
+{
 	gui = new ofxDatGui(10, 10);
 	colorFillPicker = gui->addColorPicker("Fill color");
 	colorOutLinePicker = gui->addColorPicker("Out line color");
 	colorFillPicker->setColor(0, 255, 0);
 	colorOutLinePicker->setColor(255, 0, 0);
+	gui->setVisible(false);
+}
+
+void CanvasController::setup() {
+    this->setState(NONE);
+    this->history = HistoryManager::getInstance()->getFromController(this);
+    ofSetCircleResolution(100);
+	
 }
 
 void CanvasController::draw() {
@@ -52,23 +58,29 @@ void CanvasController::draw() {
         ofDrawCircle(point, 3);
     }
     ofSetColor(CanvasController::defColor);
-	if (colorFillPicker != nullptr) {
-		// colorFillPicker->draw();
-		this->drawOption->setFillColor(colorFillPicker->getColor());
-		this->drawOption->setOutLineColor(colorOutLinePicker->getColor());
-	}
+	this->drawOption->setFillColor(colorFillPicker->getColor());
+	this->drawOption->setOutLineColor(colorOutLinePicker->getColor());
+
+}
+
+void CanvasController::resetSettings()
+{
+
 }
 
 void CanvasController::enableEvents() {
     ofAddListener(ofEvents().mousePressed, this, &CanvasController::onMousePressed);
     ofAddListener(ofEvents().mouseReleased, this, &CanvasController::onMouseRelease);
     ofAddListener(ofEvents().keyReleased, this, &CanvasController::onKeyRelease);
+	gui->setVisible(true);
 }
 
 void CanvasController::disableEvents() {
     ofRemoveListener(ofEvents().mousePressed, this, &CanvasController::onMousePressed);
     ofRemoveListener(ofEvents().mouseReleased, this, &CanvasController::onMouseRelease);
     ofRemoveListener(ofEvents().keyReleased, this, &CanvasController::onKeyRelease);
+	gui->setVisible(false);
+	
 }
 
 void CanvasController::setState(CanvasController::STATE state) {
@@ -97,6 +109,9 @@ void CanvasController::onMousePressed(ofMouseEventArgs &evt) {
 }
 
 void CanvasController::onMouseRelease(ofMouseEventArgs &evt) {
+	if (this->initialPoint == nullptr) {
+		return;
+	}
     switch (this->state) {
         case NONE:
             break;

@@ -5,6 +5,11 @@
 #include <events/ofEventUtils.h>
 #include "AController.h"
 
+void AController::resetSettings()
+{
+	
+}
+
 void AController::enableEvents() {
 }
 
