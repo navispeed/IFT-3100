@@ -114,3 +114,10 @@ build/
 config.make
 obj/osx/Release/.compiler_flags
 openFrameworks-Info.plist
+
+#VS
+IFT-3100.*
+.vs/*
+bin/*
+obj/*
+icon.rc
