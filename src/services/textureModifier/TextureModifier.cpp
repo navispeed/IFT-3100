@@ -1,16 +1,15 @@
 #include "TextureModifier.h"
 
-void textureModifier::setup()
+
+textureModifier::textureModifier(string path[], int nbTexture)
 {
-	// importer l'image source
-	string fileName;
-	stringstream ss;
-	for (int i = 1; i <= nbTexture; i++) {
-		fileName = "texture" + to_string(i) + ".jpg";
-		if (!textures[i - 1].load(fileName)) {
-			std::cout << "Impossible de lire le fichier: " + fileName << endl;
-			textures[i - 1].allocate(256, 256, OF_IMAGE_COLOR);
-			textures[i - 1].setColor(ofColor::black);
+	this->nbTexture = nbTexture;
+	for (int i = 0; i < nbTexture; i++) {
+		textures.push_back(ofImage());
+		if (!textures[i].load(path[i])) {
+			std::cout << "Impossible de lire le fichier: " + path[i] << endl;
+			textures[i].allocate(256, 256, OF_IMAGE_COLOR);
+			textures[i].setColor(ofColor::black);
 		}
 	}
 	textureActuel = textures[0];
@@ -19,7 +18,6 @@ void textureModifier::setup()
 	kernel_type = ConvolutionKernel::IDENTITY;
 	compOption = Composition::ADD;
 }
-
 
 // fonction de filtrage par convolution
 ofImage textureModifier::filter(ofImage textureOrig, ConvolutionKernel kernel)
