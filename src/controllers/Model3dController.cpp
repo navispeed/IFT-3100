@@ -13,6 +13,12 @@ void Model3dController::adjustCurrent()
 	selection.push_back(container[current]);
 }
 
+Model3dController::Model3dController()
+{
+	model1 = loadModel("model1.obj");
+	model2 = loadModel("model2.obj");
+}
+
 Model3dController::~Model3dController() {
 	delete model1;
 	delete model2;
@@ -26,9 +32,6 @@ void Model3dController::setup() {
     ofDisableAlphaBlending();
 
     this->history = HistoryManager::getInstance()->getFromController(this);
-
-	model1 = loadModel("model1.obj");
-	model2 = loadModel("model2.obj");
 
 
     enableEvents();

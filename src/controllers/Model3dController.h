@@ -58,6 +58,7 @@ private:
 	void adjustCurrent();
 
 public:
+	Model3dController();
     ~Model3dController();
 
 	void setup() override;
