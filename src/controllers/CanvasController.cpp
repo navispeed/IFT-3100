@@ -16,28 +16,36 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "InfiniteRecursion"
 const std::map<int, const char *> CanvasController::stateToString = {
-        {NONE,              ""},
+        {NONE,              "Points selector"},
         {STATE::RECTANGLE,  "Rectangle"},
-        {STATE::POLYGONE,   "Polygone"},
-        {STATE::CIRCLE,     "Cercle"},
-        {STATE::LINE,       "Ligne"},
+        {STATE::POLYGONE,   "Polygon"},
+        {STATE::CIRCLE,     "Circle"},
+        {STATE::LINE,       "Line"},
         {STATE::TRIANGLE,   "Triangle"},
-        {STATE::REC_TREE,   "Arbre récursif"},
+        {STATE::REC_TREE,   "Recursive Tree"},
         {STATE::SIERPINSKI, "Sierpinski"},
 };
 
 CanvasController::CanvasController()
 {
+	std::vector<std::string> dropDownElements;
+	std::vector<char> dropDownChar;
+	for (auto p : stateToString) {
+		dropDownElements.push_back(p.second);
+		dropDownChar.push_back(p.first);
+	}
 	gui = new ofxDatGui(10, 10);
 	colorFillPicker = gui->addColorPicker("Fill color");
 	colorOutLinePicker = gui->addColorPicker("Out line color");
 	weightSlider = gui->addSlider("Line weight", 0, 80, 1);
+	dropDown = gui->addDropdown("Shape", dropDownElements);
 	saveBtn = gui->addButton("Save Image");
 	importBtn = gui->addButton("Import Image");
 
 	weightSlider->setPrecision(0);
 	colorFillPicker->setColor(this->drawOption->getFillColor());
 	colorOutLinePicker->setColor(this->drawOption->getOutLineColor());
+	dropDown->select(7);
 
 	colorFillPicker->onColorPickerEvent([&](ofxDatGuiColorPickerEvent e) {
 		this->drawOption->setFillColor(e.color);
@@ -72,6 +80,12 @@ CanvasController::CanvasController()
 		else {
 		}
 	});
+
+	dropDown->onDropdownEvent([&, dropDownChar](ofxDatGuiDropdownEvent e) {
+		ofKeyEventArgs fakeKey;
+		fakeKey.key = dropDownChar.at(e.child);
+		onKeyRelease(fakeKey);
+	});
 	
 	gui->setVisible(false);
 }
@@ -81,6 +95,9 @@ void CanvasController::setup() {
     this->history = HistoryManager::getInstance()->getFromController(this);
     ofSetCircleResolution(100);
 	
+	this->otherObject.emplace_back([]() {
+		ofDrawRectangle(0, 0, 300, ofGetHeight());
+	});
 }
 
 void CanvasController::draw() {
@@ -127,7 +144,7 @@ void CanvasController::setState(CanvasController::STATE state) {
 }
 
 void CanvasController::onMousePressed(ofMouseEventArgs &evt) {
-	if (evt.x < 300 && evt.y < 150) {
+	if (evt.x < 300) {
 		return;
 	}
     if (this->state == NONE) {
@@ -289,12 +306,7 @@ void CanvasController::load(std::string &path) {
 }
 
 void CanvasController::save(std::string &path) {
-    this->gui->setVisible(false);
-    this->otherObject.emplace_back([&, path]() {
-        this->getCanvas()->getCapture()->save(path);
-        this->gui->setVisible(true);
-        this->otherObject.pop_back();
-    });
+	this->getCanvas()->getCapture()->save(path);
 }
 
 void CanvasController::reset() {
@@ -303,7 +315,7 @@ void CanvasController::reset() {
 
 OfCanvasPtr CanvasController::getCanvas() {
     auto *img = new ofImage();
-    img->grabScreen(0, 0, ofGetWidth(), ofGetHeight());
+    img->grabScreen(300, 0, ofGetWidth() - 300, ofGetHeight());
     this->canvas = make_shared<OfCanvas>(this->otherObject, img);
     return this->canvas;
 }

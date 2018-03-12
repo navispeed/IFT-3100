@@ -70,6 +70,7 @@ private:
 	ofxDatGuiColorPicker *colorFillPicker = nullptr;
 	ofxDatGuiColorPicker *colorOutLinePicker = nullptr;
 	ofxDatGuiSlider *weightSlider = nullptr;
+	ofxDatGuiDropdown *dropDown = nullptr;
 	ofxDatGuiButton *saveBtn = nullptr;
 	ofxDatGuiButton *importBtn = nullptr;
 
