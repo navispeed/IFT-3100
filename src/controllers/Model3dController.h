@@ -10,6 +10,7 @@
 #include <model/constant.h>
 #include <ofxAssimpModelLoader.h>
 #include <services/textureModifier/TextureModifier.h>
+#include <future>
 
 enum class FormMode {
 	NONE, MODEL1, MODEL2, BOX, SPHERE, CYLINDER, CONE
@@ -19,7 +20,10 @@ enum class TransformType {
 };
 class Model3dController : public AController {
 private:
-   
+    typedef std::shared_ptr<ofxAssimpModelLoader> modelType;
+
+    std::vector<modelType> modelsList;
+
     FormMode formMode = FormMode::NONE;
     TransformType transformType = TransformType::SCALE;
 
@@ -42,10 +46,11 @@ private:
 
     std::vector<Object3d_Ptr> container;
     std::vector<Object3d_Ptr> selection;
-    ofVec2f *initialPoint = nullptr;
+    std::shared_ptr<ofVec3f> initialPoint = nullptr;
+    std::vector<otherObjectDrawCall> drawCalls;
 
-    ofxAssimpModelLoader *model1;
-    ofxAssimpModelLoader *model2;
+    __deprecated ofxAssimpModelLoader *model1;
+    __deprecated ofxAssimpModelLoader *model2;
 
 	ofLight light;
 
@@ -63,7 +68,7 @@ public:
 
 	void setup() override;
 
-	ofxAssimpModelLoader* loadModel(string path);
+	shared_ptr<ofxAssimpModelLoader> loadModel(string path);
 
     void draw() override;
 
@@ -99,4 +104,5 @@ public:
 
     void reset();
 
+    void drawOriginOn(ofVec3f position, int length) const;
 };

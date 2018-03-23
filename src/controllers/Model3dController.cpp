@@ -1,34 +1,51 @@
 #include "Model3dController.h"
 #include <services/history/HistoryManager.h>
+#include <future>
 
-void Model3dController::adjustCurrent()
-{
-	if (container.size() == 0) {
-		current = -1;
-	}
-	else {
-		current %= container.size();
-	}
-	selection.clear();
-	selection.push_back(container[current]);
+void Model3dController::adjustCurrent() {
+    if (container.size() == 0) {
+        current = -1;
+    } else {
+        current %= container.size();
+    }
+    selection.clear();
+    selection.push_back(container[current]);
 }
 
-Model3dController::Model3dController()
-{
-	model1 = loadModel("model1.obj");
-	model2 = loadModel("model2.obj");
+Model3dController::Model3dController() {
+    this->modelsList.push_back(loadModel("model1.obj"));
+    this->modelsList.push_back(loadModel("model2.obj"));
+
+    this->cam = ofEasyCam();
+    this->cam.setPosition(0, 0, 50);
+    this->drawCalls.push_back([this]() {
+        drawOriginOn(ofVec3f(0, 0, 0), 100);
+        ofSetColor(ofColor::grey);
+        ofRotate(90, 0, 0, 1);
+        ofDrawGridPlane(10, 10, false);
+    });
+//    this->cam.setupOffAxisViewPortal(topLeft, bottomLeft, bottomRight);
 }
+
+void Model3dController::drawOriginOn(ofVec3f position, int length) const {
+    ofSetColor(ofColor::red);
+    ofDrawArrow(position, position + ofVec3f(length, 0), 4);
+    ofSetColor(ofColor::green);
+    ofDrawArrow(position, position + ofVec3f(0, length), 4);
+    ofSetColor(ofColor::blue);
+    ofDrawArrow(position, position + ofVec3f(0, 0, length), 4);
+}
+
+// 100  x
+//  5
 
 Model3dController::~Model3dController() {
-	delete model1;
-	delete model2;
-    delete initialPoint;
 }
 
 void Model3dController::setup() {
     ofSetWindowTitle("3d mode");
 
-	ofDisableArbTex();
+    ofDisableArbTex();
     ofDisableAlphaBlending();
 
     this->history = HistoryManager::getInstance()->getFromController(this);
@@ -36,30 +53,56 @@ void Model3dController::setup() {
 
     enableEvents();
 
-    // light.enable();
-    // light.setPosition(ofVec3f(100, 100, 200));
-    // light.lookAt(ofVec3f(0, 0, 0));
 
-	string list[3];
-	for (int i = 1; i <= 3; i++) {
-		list[i - 1] = "texture" + to_string(i)+".jpg";
-	}
-	texMod = textureModifier(list,3);
+
+    string list[3];
+    for (int i = 1; i <= 3; i++) {
+        list[i - 1] = "texture" + to_string(i) + ".jpg";
+    }
+    texMod = textureModifier(list, 3);
 }
 
-ofxAssimpModelLoader* Model3dController::loadModel(string path) {
-	ofxAssimpModelLoader * modelTemp = new ofxAssimpModelLoader();
-	if (!modelTemp->loadModel(path)) {
-		std::cout << "<Erreur> impossible de lire: " + path << endl;
-	}
-	return modelTemp;
+shared_ptr<ofxAssimpModelLoader> Model3dController::loadModel(string path) {
+    auto modelTemp = std::make_shared<ofxAssimpModelLoader>();
+    if (!modelTemp->loadModel(path)) {
+        std::cout << "<Erreur> impossible de lire: " + path << endl;
+    }
+    return modelTemp;
 }
 
 void Model3dController::draw() {
+
+//    ofDrawGridPlane(60, 8);
+    this->cam.begin();
+//
+//     light.enable();
+//     light.setPosition(ofVec3f(100, 100, 200));
+//     light.lookAt(ofVec3f(0, 0, 0));
     ofEnableDepthTest();
-    for (auto &it : container) {
-        it->drawObject();
+//    ofDrawGrid(60, 8, false, true, true, false);
+//    ofDrawGridPlane(60, 8);
+    for (auto &it : drawCalls) {
+        ofPushMatrix();
+        ofPushStyle();
+        it();
+        ofPopMatrix();
+        ofPopStyle();
     }
+
+    for (auto &it : container) {
+
+        it->drawObject();
+
+    }
+    for (auto &selected : this->selection) {
+        ofPushMatrix();
+        ofPushStyle();
+        auto max = std::max(std::max(selected->getAsOfNode()->getScale().x, selected->getAsOfNode()->getScale().y), selected->getAsOfNode()->getScale().z);
+        drawOriginOn(selected->getAsOfNode()->getPosition(), static_cast<int>(10 + max));
+        ofPopMatrix();
+        ofPopStyle();
+    }
+    this->cam.end();
 }
 
 void Model3dController::enableEvents() {
@@ -72,7 +115,7 @@ void Model3dController::disableEvents() {
     ofRemoveListener(ofEvents().mousePressed, this, &Model3dController::onMousePressed);
     ofRemoveListener(ofEvents().mouseReleased, this, &Model3dController::onMouseReleased);
     ofRemoveListener(ofEvents().keyPressed, this, &Model3dController::onKeyRelease);
-	ofDisableDepthTest();
+    ofDisableDepthTest();
 }
 
 void Model3dController::onMousePressed(ofMouseEventArgs &evt) {
@@ -80,28 +123,22 @@ void Model3dController::onMousePressed(ofMouseEventArgs &evt) {
     switch (formMode) {
         case FormMode::MODEL1: {
             std::cout << "newModel1" << std::endl;
-            createModel(position, this->model1);
+            createModel(position, this->modelsList[0].get());
             break;
         }
         case FormMode::MODEL2: {
-            ofxAssimpModelLoader *temp2 = model2;
             std::cout << "newModel2" << std::endl;
-            createModel(position, this->model2);
+            createModel(position, this->modelsList[1].get());
             break;
         }
         default:
-            ofVec2f *ptr = new ofVec2f(evt.x, evt.y);
-            if (this->initialPoint != nullptr) {
-                delete this->initialPoint;
-            }
-            initialPoint = ptr;
+            initialPoint = std::make_shared<ofVec3f>(this->cam.screenToWorld(evt));
             break;
     }
 }
 
 void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
-
-    ofPoint modelPosition(ofGetWidth() * 0.5, (float) ofGetHeight() * 0.75);
+    this->cam.disableMouseInput();
     CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::DEFAULT);
     switch (evt.key) {
         case 97://a
@@ -122,16 +159,16 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
             std::cout << "modeSphere" << std::endl;
             CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::SPHERE);
             break;
-		case 109://m
-			formMode = FormMode::CYLINDER;
-			std::cout << "modeCylinder" << std::endl;
-			CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::CYLINDER);
-			break;
-		case 110://n
-			formMode = FormMode::CONE;
-			std::cout << "modeCONE" << std::endl;
-			CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::CONE);
-			break;
+        case 109://m
+            formMode = FormMode::CYLINDER;
+            std::cout << "modeCylinder" << std::endl;
+            CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::CYLINDER);
+            break;
+        case 110://n
+            formMode = FormMode::CONE;
+            std::cout << "modeCONE" << std::endl;
+            CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::CONE);
+            break;
         case 356://fleche
             for (int i = 0; i < selection.size(); i++) {
                 this->transform(selection[i].get(), 1);
@@ -141,15 +178,15 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
             for (int i = 0; i < selection.size(); i++) {
                 this->transform(selection[i].get(), -1);
             }
-			break;
-		case 357:
-			current++;
-			adjustCurrent();
-			break;
-		case 359:
-			current--;
-			adjustCurrent();
-			break;
+            break;
+        case 357:
+            current++;
+            adjustCurrent();
+            break;
+        case 359:
+            current--;
+            adjustCurrent();
+            break;
         case 90: {
             auto it = container.end();
             if (it != container.begin()) {
@@ -159,33 +196,33 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
             }
             break;
         }
-		case 101://e
-		{
-			Composition comp = texMod.cycleComposition();
-			for (auto it : selection) {
-				it->setTexture(texMod.compositionTexture(it->getTexture(), texMod.getNextTexture(),comp));
-			}
-			break;
-		}
-		case 119: {//w
-			//passe a travers les filtres sur les objets selectionnees
-			ConvolutionKernel filtre = texMod.cycleFiltre();
-			for (auto it : selection) {
-				it->setTexture(texMod.filter(it->getTexture(), filtre));
-			}
-			break;
-		}
-		case 113://q
-			for (auto it : selection) {
-				it->setTexture(texMod.applyTexture());
-			}
-			break;
-		case 81: //shift+q
-			texMod.cycleTexture();
-			for (auto it : selection) {
-				it->setTexture(texMod.applyTexture());
-			}
-			break;
+        case 101://e
+        {
+            Composition comp = texMod.cycleComposition();
+            for (auto it : selection) {
+                it->setTexture(texMod.compositionTexture(it->getTexture(), texMod.getNextTexture(), comp));
+            }
+            break;
+        }
+        case 119: {//w
+            //passe a travers les filtres sur les objets selectionnees
+            ConvolutionKernel filtre = texMod.cycleFiltre();
+            for (auto it : selection) {
+                it->setTexture(texMod.filter(it->getTexture(), filtre));
+            }
+            break;
+        }
+        case 113://q
+            for (auto it : selection) {
+                it->setTexture(texMod.applyTexture());
+            }
+            break;
+        case 81: //shift+q
+            texMod.cycleTexture();
+            for (auto it : selection) {
+                it->setTexture(texMod.applyTexture());
+            }
+            break;
         case 114://r
             this->transformType = TransformType::ROTATE;
             break;
@@ -233,38 +270,42 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
             break;
         case 127://supprimer
             this->reset();
-			current = -1;
+            current = -1;
             break;
-		case 65://shift-a
-			selection.clear();
-			this->selection.insert(this->selection.end(), this->container.begin(), this->container.end());
+        case 65://shift-a
+            selection.clear();
+            this->selection.insert(this->selection.end(), this->container.begin(), this->container.end());
         default:
             formMode = FormMode::NONE;
+            this->cam.enableMouseInput();
             break;
     }
 }
 
 void Model3dController::onMouseReleased(ofMouseEventArgs &evt) {
+    const ofVec3f &coordonnateInWorld = this->cam.screenToWorld(evt);
     switch (formMode) {
         case FormMode::BOX:
-            this->createBox(ofVec3f(evt.x, evt.y, 0), *(this->initialPoint));
+            this->createBox(coordonnateInWorld, *(this->initialPoint));
             break;
         case FormMode::SPHERE:
-            this->createSphere(ofVec3f(evt.x, evt.y, 0), *(this->initialPoint));
+            this->createSphere(coordonnateInWorld, *(this->initialPoint));
             break;
-		case FormMode::CONE:
-			this->createCone(ofVec3f(evt.x, evt.y, 0), *(this->initialPoint));
-			break;
-		case FormMode::CYLINDER:
-			this->createCylinder(ofVec3f(evt.x, evt.y, 0), *(this->initialPoint));
-			break;
+        case FormMode::CONE:
+            this->createCone(coordonnateInWorld, *(this->initialPoint));
+            break;
+        case FormMode::CYLINDER:
+            this->createCylinder(coordonnateInWorld, *(this->initialPoint));
+            break;
         default:
             break;
     }
 }
 
 void Model3dController::createModel(const ofVec3f &position, ofxAssimpModelLoader *model) {
-    auto redoFunction = [model, position, this]() { this->createModel(position, model); };
+    auto redoFunction = [model, position, this]() {
+        this->createModel(position, model);
+    };
     this->addItem(std::make_shared<Model3d>(model, position));
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
 }
@@ -276,7 +317,9 @@ void Model3dController::createBox(const ofVec3f &position, const ofVec2f &startP
     auto ptr = std::make_shared<Primitive3d>(temp);
     this->addItem(ptr);
 
-    auto redoFunction = [position, this, startPoint]() { this->createBox(position, startPoint); };
+    auto redoFunction = [position, this, startPoint]() {
+        this->createBox(position, startPoint);
+    };
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
 }
 
@@ -287,77 +330,91 @@ void Model3dController::createSphere(const ofVec3f &position, const ofVec2f &sta
     auto ptr = std::make_shared<Primitive3d>(temp);
     this->addItem(ptr);
 
-    auto redoFunction = [position, this, startPoint]() { this->createSphere(position, startPoint); };
+    auto redoFunction = [position, this, startPoint]() {
+        this->createSphere(position, startPoint);
+    };
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
 }
 
 void Model3dController::createCone(const ofVec3f &position, const ofVec2f &startPoint) {
-	auto temp = new ofConePrimitive();
-	float size = startPoint.distance(ofVec2f(position.x, position.y));
-	temp->setRadius(size / 2);
-	temp->setHeight(size / 2);
-	temp->setPosition(position);
-	auto ptr = std::make_shared<Primitive3d>(temp);
-	this->addItem(ptr);
+    auto temp = new ofConePrimitive();
+    float size = startPoint.distance(ofVec2f(position.x, position.y));
+    temp->setRadius(size / 2);
+    temp->setHeight(size / 2);
+    temp->setPosition(position);
+    auto ptr = std::make_shared<Primitive3d>(temp);
+    this->addItem(ptr);
 
-	auto redoFunction = [position, this, startPoint]() { this->createCone(position, startPoint); };
-	DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
+    auto redoFunction = [position, this, startPoint]() {
+        this->createCone(position, startPoint);
+    };
+    DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
 }
 
 void Model3dController::createCylinder(const ofVec3f &position, const ofVec2f &startPoint) {
-	auto temp = new ofCylinderPrimitive();
-	float size = startPoint.distance(ofVec2f(position.x, position.y));
-	temp->setRadius(size / 2);
-	temp->setHeight(size / 2);
-	temp->setPosition(position);
-	auto ptr = std::make_shared<Primitive3d>(temp);
-	this->addItem(ptr);
+    auto temp = new ofCylinderPrimitive();
+    float size = startPoint.distance(ofVec2f(position.x, position.y));
+    temp->setRadius(size / 2);
+    temp->setHeight(size / 2);
+    temp->setPosition(position);
+    auto ptr = std::make_shared<Primitive3d>(temp);
+    this->addItem(ptr);
 
-	auto redoFunction = [position, this, startPoint]() { this->createCylinder(position, startPoint); };
-	DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
+    auto redoFunction = [position, this, startPoint]() {
+        this->createCylinder(position, startPoint);
+    };
+    DEFINE_UNDO_REDO_CONTAINER(this->history, this->container, redoFunction);
 }
 
 void Model3dController::transform(Object3d *obj, int direction) {
     switch (transformType) {
-		case TransformType::ROTATE: 
-			rotate(obj, direction);
+        case TransformType::ROTATE:
+            rotate(obj, direction);
             break;
         case TransformType::SCALE:
-			scale(obj, direction);
+            scale(obj, direction);
             break;
         case TransformType::TRANSLATE:
-			translate(obj, direction);
-            break; 
+            translate(obj, direction);
+            break;
     }
 }
 
-void Model3dController::rotate(Object3d * obj, int direction)
-{
-	ofVec3f axe(xRotate, yRotate, zRotate);
-	obj->rotate(direction * 5, axe);
-	auto undoFunction = [obj, direction, axe] { obj->rotate(direction * -5, axe); };
-	auto redoFunction = [obj, direction, this] {this->rotate(obj, direction); };
-	DEFINE_REDO(this->history, undoFunction, redoFunction);
+void Model3dController::rotate(Object3d *obj, int direction) {
+    ofVec3f axe(xRotate, yRotate, zRotate);
+    obj->rotate(direction * 5, axe);
+    auto undoFunction = [obj, direction, axe] {
+        obj->rotate(direction * -5, axe);
+    };
+    auto redoFunction = [obj, direction, this] {
+        this->rotate(obj, direction);
+    };
+    DEFINE_REDO(this->history, undoFunction, redoFunction);
 }
 
-void Model3dController::translate(Object3d * obj, int direction)
-{
-	ofVec3f axe(xTranslate, yTranslate, zTranslate);
-	obj->translate(direction*axe);
-	auto undoFunction = [obj, direction, axe] { obj->translate(axe*-direction); };
-	auto redoFunction = [obj, direction, this] {this->translate(obj, direction); };
-	DEFINE_REDO(this->history, undoFunction, redoFunction);
+void Model3dController::translate(Object3d *obj, int direction) {
+    ofVec3f axe(xTranslate, yTranslate, zTranslate);
+    obj->translate(direction * axe);
+    auto undoFunction = [obj, direction, axe] {
+        obj->translate(axe * -direction);
+    };
+    auto redoFunction = [obj, direction, this] {
+        this->translate(obj, direction);
+    };
+    DEFINE_REDO(this->history, undoFunction, redoFunction);
 }
 
-void Model3dController::scale(Object3d * obj, int direction)
-{	
-	ofVec3f axe(xScale, yScale, zScale);
-	obj->modifyScale(ofVec3f(axe*direction));
-	auto undoFunction = [obj,direction, axe] {obj->modifyScale(axe*-direction); };
-	auto redoFunction = [obj, direction, this] {this->scale(obj, direction); };
-	DEFINE_REDO(this->history, undoFunction, redoFunction);
+void Model3dController::scale(Object3d *obj, int direction) {
+    ofVec3f axe(xScale, yScale, zScale);
+    obj->modifyScale(ofVec3f(axe * direction));
+    auto undoFunction = [obj, direction, axe] {
+        obj->modifyScale(axe * -direction);
+    };
+    auto redoFunction = [obj, direction, this] {
+        this->scale(obj, direction);
+    };
+    DEFINE_REDO(this->history, undoFunction, redoFunction);
 }
-
 
 
 void Model3dController::addItem(Object3d_Ptr ptr) {
