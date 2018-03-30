@@ -5,6 +5,7 @@
 #include "CursorManager.h"
 #include "DefaultCursor.h"
 #include "LineCursor.h"
+#include "PortalCursor.h"
 
 void CursorManager::setDefaultCursor() {
     this->instance->disable();
@@ -26,18 +27,21 @@ void CursorManager::setCursor(CursorManager::CURSOR_TYPE type) {
         case LINE:
             this->instance = new LineCursor();
             break;
-		case SPHERE:
-			this->instance = new SphereCursor();
-			break;
-		case CUBE:
-			this->instance = new CubeCursor();
-			break;
-		case CYLINDER:
-			this->instance = new CylinderCursor();
-			break;
-		case CONE:
-			this->instance = new ConeCursor();
-			break;
+        case SPHERE:
+            this->instance = new SphereCursor();
+            break;
+        case CUBE:
+            this->instance = new CubeCursor();
+            break;
+        case CYLINDER:
+            this->instance = new CylinderCursor();
+            break;
+        case CONE:
+            this->instance = new ConeCursor();
+            break;
+        case PORTAL:
+            this->instance = new PortalCursor();
+            break;
     }
     this->instance->enable();
 }

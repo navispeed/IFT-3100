@@ -22,7 +22,8 @@ public:
 		SPHERE,
 		CUBE,
 		CYLINDER,
-		CONE
+		CONE,
+		PORTAL,
     };
 
     void setDefaultCursor();

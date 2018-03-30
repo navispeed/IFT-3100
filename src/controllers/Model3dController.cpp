@@ -24,6 +24,10 @@ Model3dController::Model3dController() {
         ofRotate(90, 0, 0, 1);
         ofDrawGridPlane(10, 10, false);
     });
+    camera_near = 50.0f;
+    camera_far = 1750.0f;
+    camera_fov = 60.0f;
+
 //    this->cam.setupOffAxisViewPortal(topLeft, bottomLeft, bottomRight);
 }
 
@@ -52,7 +56,6 @@ void Model3dController::setup() {
 
 
     enableEvents();
-
 
 
     string list[3];
@@ -90,9 +93,7 @@ void Model3dController::draw() {
     }
 
     for (auto &it : container) {
-
         it->drawObject();
-
     }
     for (auto &selected : this->selection) {
         ofPushMatrix();
@@ -119,22 +120,24 @@ void Model3dController::disableEvents() {
 }
 
 void Model3dController::onMousePressed(ofMouseEventArgs &evt) {
-    ofVec3f position(evt.x, evt.y, 0);
+    const ofVec3f &args = this->cam.screenToWorld(evt);
     switch (formMode) {
         case FormMode::MODEL1: {
             std::cout << "newModel1" << std::endl;
-            createModel(position, this->modelsList[0].get());
+            createModel(args, this->modelsList[0].get());
             break;
         }
         case FormMode::MODEL2: {
             std::cout << "newModel2" << std::endl;
-            createModel(position, this->modelsList[1].get());
+            createModel(args, this->modelsList[1].get());
             break;
         }
-        default:
-            initialPoint = std::make_shared<ofVec3f>(this->cam.screenToWorld(evt));
+        default: {
+            initialPoint = std::make_shared<ofVec3f>(args);
             break;
+        }
     }
+    std::cout << "Mouse on " << args << std::endl;
 }
 
 void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
@@ -169,6 +172,12 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
             std::cout << "modeCONE" << std::endl;
             CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::CONE);
             break;
+        case 'p'://p
+            formMode = FormMode::PORTAL;
+            std::cout << "portalMode" << std::endl;
+            CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::PORTAL);
+            break;
+
         case 356://fleche
             for (int i = 0; i < selection.size(); i++) {
                 this->transform(selection[i].get(), 1);
@@ -223,13 +232,13 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
                 it->setTexture(texMod.applyTexture());
             }
             break;
-        case 114://r
+        case 'R': //r
             this->transformType = TransformType::ROTATE;
             break;
-        case 116://t
+        case 'T'://t
             this->transformType = TransformType::TRANSLATE;
             break;
-        case 112://p
+        case 'P'://p
             this->transformType = TransformType::SCALE;
             xScale = SCALEDISTANCE;
             yScale = SCALEDISTANCE;
@@ -275,6 +284,27 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
         case 65://shift-a
             selection.clear();
             this->selection.insert(this->selection.end(), this->container.begin(), this->container.end());
+        case 67: {//shift-c
+//            ofSetMatrixMode(OF_MATRIX_PROJECTION);
+//            ofLoadMatrix(ofMatrix4x4({}));
+//            ofSetMatrixMode(OF_MATRIX_MODELVIEW);
+            static bool is_camera_perspective = false;
+            auto position = this->cam.getPosition();
+            auto orientation = this->cam.getOrientationQuat();
+            if (is_camera_perspective) {
+                this->cam.disableOrtho();
+                this->cam.setupPerspective(false, camera_fov, camera_near, camera_far, ofVec2f(0, 0));
+                std::cout << "camera_projection = perspective" << std::endl;
+            } else {
+                this->cam.enableOrtho();
+                std::cout << "camera_projection = orthogonale" << std::endl;
+            }
+            is_camera_perspective = !is_camera_perspective;
+            this->cam.setPosition(position);
+            this->cam.setOrientation(orientation);
+            this->cam.enableMouseInput();
+            break;
+        }
         default:
             formMode = FormMode::NONE;
             this->cam.enableMouseInput();
@@ -315,6 +345,7 @@ void Model3dController::createBox(const ofVec3f &position, const ofVec2f &startP
     temp->set(startPoint.distance(ofVec2f(position.x, position.y)));
     temp->setPosition(position);
     auto ptr = std::make_shared<Primitive3d>(temp);
+
     this->addItem(ptr);
 
     auto redoFunction = [position, this, startPoint]() {

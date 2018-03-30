@@ -13,7 +13,7 @@
 #include <future>
 
 enum class FormMode {
-	NONE, MODEL1, MODEL2, BOX, SPHERE, CYLINDER, CONE
+	NONE, MODEL1, MODEL2, BOX, SPHERE, CYLINDER, CONE, PORTAL
 };
 enum class TransformType {
 	TRANSLATE, SCALE, ROTATE
@@ -43,6 +43,11 @@ private:
     float zRotate = 0;
     float zScale = SCALEDISTANCE;
     int zTranslate = 0;
+
+	float camera_near;
+	float camera_far;
+
+	float camera_fov;
 
     std::vector<Object3d_Ptr> container;
     std::vector<Object3d_Ptr> selection;
