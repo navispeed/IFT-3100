@@ -11,15 +11,25 @@
 #include <ofxAssimpModelLoader.h>
 #include <services/textureModifier/TextureModifier.h>
 #include <future>
+#include <ofxDatGui.h>
 
 enum class FormMode {
-	NONE, MODEL1, MODEL2, BOX, SPHERE, CYLINDER, CONE, PORTAL
+	NONE, MODEL1, MODEL2, BOX, SPHERE, CYLINDER, CONE, PORTAL,LIGHT
 };
 enum class TransformType {
 	TRANSLATE, SCALE, ROTATE
 };
+
+
 class Model3dController : public AController {
 private:
+	enum LIGHTTYPE : int {
+		AMBIENT = 0,
+		POINT = 1,
+		SPOT = 2,
+		DIRECTIONAL = 3,
+	};
+
     typedef std::shared_ptr<ofxAssimpModelLoader> modelType;
 
     std::vector<modelType> modelsList;
@@ -49,13 +59,17 @@ private:
 
 	float camera_fov;
 
+
+	const int LIGHTNUMBER = 8;
+	std::vector<ofLight> lights;
+	std::vector<bool> lightEnable;
     std::vector<Object3d_Ptr> container;
     std::vector<Object3d_Ptr> selection;
     std::shared_ptr<ofVec3f> initialPoint = nullptr;
     std::vector<otherObjectDrawCall> drawCalls;
 
-    __deprecated ofxAssimpModelLoader *model1;
-    __deprecated ofxAssimpModelLoader *model2;
+    ofxAssimpModelLoader *model1;
+    ofxAssimpModelLoader *model2;
 
 	ofLight light;
 
@@ -67,11 +81,41 @@ private:
 
 	void adjustCurrent();
 
+	int lightSelected = 0;
+
+	ofxDatGui *gui = nullptr;
+	ofxDatGuiToggle *togglePlacement = nullptr;
+	ofxDatGuiToggle *toggleVisible = nullptr;
+	ofxDatGuiDropdown *selectionLight = nullptr;
+
+	ofxDatGui *guiSelLight = nullptr;
+	ofxDatGuiToggle *toggleEnabled = nullptr;
+	ofxDatGuiDropdown *dropDownType = nullptr;
+	ofxDatGuiTextInput *textXCoord = nullptr;
+	ofxDatGuiTextInput *textYCoord = nullptr;
+	ofxDatGuiTextInput *textZCoord = nullptr;
+	ofxDatGuiColorPicker *pickerDiffuseColor = nullptr;
+	ofxDatGuiColorPicker *pickerSpecularColor = nullptr;
+	ofxDatGuiColorPicker *pickerAmbientColor = nullptr;
+	
+	ofxDatGui *guiOptionLight = nullptr;
+	ofxDatGuiSlider *sliderXOrientation;
+	ofxDatGuiSlider *sliderYOrientation;
+	ofxDatGuiSlider *sliderZOrientation;
+	
+
+
 public:
 	Model3dController();
     ~Model3dController();
 
 	void setup() override;
+
+	void setupUI();
+
+	void LightSelectorDropDownEvent(ofxDatGuiDropdownEvent e);
+
+	void LightTypeDropDownEvent(ofxDatGuiDropdownEvent e);
 
 	shared_ptr<ofxAssimpModelLoader> loadModel(string path);
 
@@ -110,4 +154,6 @@ public:
     void reset();
 
     void drawOriginOn(ofVec3f position, int length) const;
+
+	bool touchInterface(ofPoint point,ofxDatGui * ui);
 };

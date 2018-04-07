@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxGui.h"
 #include "controllers/AController.h"
 #include "services/cursors/CursorManager.h"
 
