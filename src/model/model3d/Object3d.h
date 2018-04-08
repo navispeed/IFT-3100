@@ -1,9 +1,10 @@
 #pragma once
 #include "ofMain.h"
+#include "model\material\Material.h"
 
 class Object3d {
 public:
-	virtual void drawObject() = 0;
+	virtual void drawObject(vector<ofLight> lights) = 0;
 
 	virtual void rotate(float angle, ofVec3f axis) = 0;
 
@@ -16,4 +17,6 @@ public:
 	virtual ofImage getTexture()=0;
 
 	virtual void setTexture(ofImage texture) = 0;
+
+	virtual Material &getMaterial() = 0;
 };

@@ -13,6 +13,7 @@ private:
 	float angleZ;
 	ofVec3f position;
 	ofImage texture;
+	Material material;
 public:
 
 	Model3d(ofxAssimpModelLoader * model,ofVec3f position);
@@ -22,12 +23,13 @@ public:
 	void adjustAngleZ(const float adjust);
 	void adjustangle(const float adjust, float& angle);
 
-	void drawObject() override;
+	void drawObject(vector<ofLight> lights) override;
 	void rotate(float angle, ofVec3f axis) override;
 	void translate(ofVec3f translation) override;
 	void modifyScale(ofVec3f scaleAdjust) override;
 	ofImage getTexture() override;
 	void setTexture(ofImage texture) override;
+	Material &getMaterial() override;
 
 	ofNode *getAsOfNode() override;
 };

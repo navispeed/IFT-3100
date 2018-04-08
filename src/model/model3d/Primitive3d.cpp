@@ -10,10 +10,13 @@ Primitive3d::Primitive3d(of3dPrimitive * primitive)
 	this->primitive = primitive;
 }
 
-void Primitive3d::drawObject()
+void Primitive3d::drawObject(vector<ofLight> lights)
 {
+
 	this->texture.bind();
+	this->material.beginMaterial(lights);
 	this->primitive->draw();
+	this->material.endMaterial();
 	this->texture.unbind();
 }
 
@@ -45,4 +48,8 @@ void Primitive3d::setTexture(ofImage texture)
 
 ofNode *Primitive3d::getAsOfNode() {
 	return this->primitive;
+}
+
+Material &Primitive3d::getMaterial() {
+	return this->material;
 }

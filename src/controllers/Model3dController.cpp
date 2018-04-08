@@ -13,6 +13,27 @@ void Model3dController::adjustCurrent() {
     selection.push_back(container[current]);
 }
 
+void Model3dController::hideLightGui() {
+	gui->setVisible(false);
+	if (guiSelLight != nullptr) {
+		guiSelLight->setVisible(false);
+	}
+	if (guiOptionLight != nullptr) {
+		guiOptionLight->setVisible(false);
+	}
+}
+
+void Model3dController::changeGuiMat()
+{
+	if (selection.at(0) != nullptr) {
+		pickerAmbientMat->setColor(selection.at(0)->getMaterial().getAmbientColor());
+		pickerSpecularMat->setColor(selection.at(0)->getMaterial().getSpecularColor());
+		pickerEmissiveMat->setColor(selection.at(0)->getMaterial().getEmissiveColor());
+		pickerDiffuseMat->setColor(selection.at(0)->getMaterial().getEmissiveColor());
+		sliderShininess->setValue(selection.at(0)->getMaterial().getShininess());
+	}
+}
+
 Model3dController::Model3dController() {
     this->modelsList.push_back(loadModel("model1.obj"));
     this->modelsList.push_back(loadModel("model2.obj"));
@@ -24,7 +45,7 @@ Model3dController::Model3dController() {
 
     this->cam = ofEasyCam();
     this->cam.setPosition(0, 0, 50);
-    this->drawCalls.push_back([this]() {
+    this->drawCalls.push_back([this]() {	
         drawOriginOn(ofVec3f(0, 0, 0), 100);
         ofSetColor(ofColor::grey);
         ofRotate(90, 0, 0, 1);
@@ -75,6 +96,8 @@ void Model3dController::setup() {
 
 
 void Model3dController::setupUI() {
+
+	//setup light ui
 	gui = new ofxDatGui(10, 10);
 	toggleVisible = gui->addToggle("Show lights");
 	std::vector<string> lightNumbers;
@@ -91,6 +114,48 @@ void Model3dController::setupUI() {
 
 	});
 	gui->setVisible(false);
+
+	//setup material ui
+	guiMaterial = new ofxDatGui(10, 10);
+
+	vector<string> materialTypes;
+	materialTypes.push_back("base");
+	materialTypes.push_back("gouraud");
+	materialTypes.push_back("lambert");
+	materialTypes.push_back("phong");
+	vector<Object3d_Ptr> * tempSelection = &selection;
+	dropDownMaterialType = guiMaterial->addDropdown("illumination type", materialTypes);
+	dropDownMaterialType->onDropdownEvent([&, tempSelection](ofxDatGuiDropdownEvent e) {
+		tempSelection->at(0)->getMaterial().changeMaterialType((typeIllum)e.child);
+	});
+	
+	pickerAmbientMat = guiMaterial->addColorPicker("Ambient Color");
+	pickerAmbientMat->onColorPickerEvent([&, tempSelection](ofxDatGuiColorPickerEvent e) {
+		tempSelection->at(0)->getMaterial().setAmbientColor(e.color);
+	});
+
+	pickerDiffuseMat = guiMaterial->addColorPicker("Diffuse Color");
+	pickerDiffuseMat->onColorPickerEvent([&, tempSelection](ofxDatGuiColorPickerEvent e) {
+		tempSelection->at(0)->getMaterial().setDiffuseColor(e.color);
+	});
+
+	pickerSpecularMat = guiMaterial->addColorPicker("Specular Color");
+	pickerSpecularMat->onColorPickerEvent([&, tempSelection](ofxDatGuiColorPickerEvent e) {
+		tempSelection->at(0)->getMaterial().setSpecularColor(e.color);
+	});
+
+	pickerEmissiveMat = guiMaterial->addColorPicker("Emissive Color");
+	pickerEmissiveMat->onColorPickerEvent([&, tempSelection](ofxDatGuiColorPickerEvent e) {
+		tempSelection->at(0)->getMaterial().setEmissiveColor(e.color);
+	});
+
+	sliderShininess = guiMaterial->addSlider("Shininess", 0, 200,0);
+	sliderShininess->onSliderEvent([&, tempSelection](ofxDatGuiSliderEvent e) {
+		tempSelection->at(0)->getMaterial().setShininess(e.value);
+	});
+
+	guiMaterial->setVisible(false);
+	
 }
 
 void Model3dController::LightSelectorDropDownEvent(ofxDatGuiDropdownEvent e)
@@ -150,6 +215,12 @@ void Model3dController::LightSelectorDropDownEvent(ofxDatGuiDropdownEvent e)
 	textZCoord->onTextInputEvent([&, tempLights, ind](ofxDatGuiTextInputEvent e) {
 		tempLights->at(ind).setPosition(tempLights->at(ind).getPosition().x, tempLights->at(ind).getPosition().y, stof(e.text));
 	});
+
+	guiSelLight->addLabel("Attenuation");
+	sliderAttenuation1 = guiSelLight->addSlider("linear",0,100,100);
+	sliderAttenuation1->onSliderEvent([&, tempLights, ind](ofxDatGuiSliderEvent e) {
+		tempLights->at(ind).setAttenuation(e.value/100, tempLights->at(ind).getAttenuationLinear(), tempLights->at(ind).getAttenuationQuadratic());
+	});
 }
 
 void Model3dController::LightTypeDropDownEvent(ofxDatGuiDropdownEvent e) {
@@ -192,9 +263,6 @@ void Model3dController::LightTypeDropDownEvent(ofxDatGuiDropdownEvent e) {
 			lights.at(ind).setSpotlight();
 		}
 	}
-	if (lights.at(0).getIsSpotlight())std::cout << "Origin:oui" << endl;
-
-	if(tempLights->at(0).getIsSpotlight())std::cout << "Copie:oui" << endl;
 	
 }
 
@@ -234,7 +302,7 @@ void Model3dController::draw() {
 	
 
     for (auto &it : container) {
-        it->drawObject();
+        it->drawObject(lights);
     }
 
 	
@@ -275,6 +343,7 @@ void Model3dController::disableEvents() {
 	if (guiOptionLight) {
 		guiOptionLight->setVisible(false);
 	}
+	guiMaterial->setVisible(false);
 }
 
 void Model3dController::onMousePressed(ofMouseEventArgs &evt) {
@@ -320,18 +389,32 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
 	}
     CursorManager::getInstance()->setCursor(CursorManager::CURSOR_TYPE::DEFAULT);
     switch (evt.key) {
+
+	case ' ': {
+		ofColor color;
+		ofFloatColor a = color;
+		cout << to_string(a.b) << " " << to_string(color.b) << endl;
+		cout << to_string(a.g) << " " << to_string(color.g) << endl;
+		cout << to_string(a.r) << " " << to_string(color.r) << endl;
+		break;
+	}
 		case 'l':
 			gui->setVisible(true);
+			guiMaterial->setVisible(false);
 			formMode = FormMode::LIGHT;
 			break;
 		case 'L':
-			gui->setVisible(false);
-			if (guiSelLight != nullptr) {
-				guiSelLight->setVisible(false);
+			this->hideLightGui();
+			break;
+		case 'k':
+			this->hideLightGui();
+			if (selection.at(0) != nullptr) {
+				guiMaterial->setVisible(true);
+				changeGuiMat();
 			}
-			if (guiOptionLight != nullptr) {
-				guiOptionLight->setVisible(false);
-			}
+			break;
+		case 'K':
+			guiMaterial->setVisible(false);
 			break;
         case 97://a
             formMode = FormMode::MODEL1;
@@ -380,10 +463,12 @@ void Model3dController::onKeyRelease(ofKeyEventArgs &evt) {
         case 357:
             current++;
             adjustCurrent();
+			changeGuiMat();
             break;
         case 359:
             current--;
             adjustCurrent();
+			changeGuiMat();
             break;
         case 90: {
             auto it = container.end();
@@ -662,4 +747,8 @@ bool Model3dController::touchInterface(ofPoint point, ofxDatGui * ui)
 		within |= point.x <= x2 && point.x >= x1 && point.y >= y1 && point.y <= y2;
 	}
 	return within;
+}
+
+Object3d_Ptr Model3dController::getSelectionAt(int ind) {
+	return selection.at(ind);
 }

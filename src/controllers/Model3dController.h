@@ -79,15 +79,15 @@ private:
 
 	ofEasyCam cam;
 
-	void adjustCurrent();
-
 	int lightSelected = 0;
 
+	//light main ui
 	ofxDatGui *gui = nullptr;
 	ofxDatGuiToggle *togglePlacement = nullptr;
 	ofxDatGuiToggle *toggleVisible = nullptr;
 	ofxDatGuiDropdown *selectionLight = nullptr;
 
+	//light selected ui
 	ofxDatGui *guiSelLight = nullptr;
 	ofxDatGuiToggle *toggleEnabled = nullptr;
 	ofxDatGuiDropdown *dropDownType = nullptr;
@@ -97,14 +97,26 @@ private:
 	ofxDatGuiColorPicker *pickerDiffuseColor = nullptr;
 	ofxDatGuiColorPicker *pickerSpecularColor = nullptr;
 	ofxDatGuiColorPicker *pickerAmbientColor = nullptr;
+	ofxDatGuiSlider *sliderAttenuation1 = nullptr;
 	
+	//light specifics ui
 	ofxDatGui *guiOptionLight = nullptr;
-	ofxDatGuiSlider *sliderXOrientation;
-	ofxDatGuiSlider *sliderYOrientation;
-	ofxDatGuiSlider *sliderZOrientation;
+	ofxDatGuiSlider *sliderXOrientation = nullptr;
+	ofxDatGuiSlider *sliderYOrientation = nullptr;
+	ofxDatGuiSlider *sliderZOrientation = nullptr;
 	
+	//material gui
+	ofxDatGui *guiMaterial = nullptr;
+	ofxDatGuiDropdown *dropDownMaterialType = nullptr;
+	ofxDatGuiColorPicker *pickerDiffuseMat = nullptr;
+	ofxDatGuiColorPicker *pickerSpecularMat = nullptr;
+	ofxDatGuiColorPicker *pickerAmbientMat = nullptr;
+	ofxDatGuiColorPicker *pickerEmissiveMat = nullptr;
+	ofxDatGuiSlider *sliderShininess = nullptr;
 
-
+	void adjustCurrent();
+	void hideLightGui();
+	void changeGuiMat();
 public:
 	Model3dController();
     ~Model3dController();
@@ -156,4 +168,6 @@ public:
     void drawOriginOn(ofVec3f position, int length) const;
 
 	bool touchInterface(ofPoint point,ofxDatGui * ui);
+
+	Object3d_Ptr getSelectionAt(int ind);
 };
