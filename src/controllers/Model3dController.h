@@ -24,10 +24,9 @@ enum class TransformType {
 class Model3dController : public AController {
 private:
 	enum LIGHTTYPE : int {
-		AMBIENT = 0,
-		POINT = 1,
-		SPOT = 2,
-		DIRECTIONAL = 3,
+		POINT = 0,
+		SPOT = 1,
+		DIRECTIONAL = 2,
 	};
 
     typedef std::shared_ptr<ofxAssimpModelLoader> modelType;
@@ -113,10 +112,10 @@ private:
 	ofxDatGuiColorPicker *pickerAmbientMat = nullptr;
 	ofxDatGuiColorPicker *pickerEmissiveMat = nullptr;
 	ofxDatGuiSlider *sliderShininess = nullptr;
+	ofxDatGuiDropdown *dropDownMaterialSample = nullptr;
 
 	void adjustCurrent();
 	void hideLightGui();
-	void changeGuiMat();
 public:
 	Model3dController();
     ~Model3dController();
@@ -136,6 +135,8 @@ public:
     void enableEvents() override;
 
     void disableEvents() override;
+
+	bool hasKeyboardFocus() override;
 
     void onMousePressed(ofMouseEventArgs &evt);
 
@@ -170,4 +171,6 @@ public:
 	bool touchInterface(ofPoint point,ofxDatGui * ui);
 
 	Object3d_Ptr getSelectionAt(int ind);
+
+	void changeGuiMat();
 };

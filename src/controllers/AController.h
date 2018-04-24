@@ -26,12 +26,16 @@ public:
         }
     }
 
+	virtual bool hasKeyboardFocus();
+
 protected:
     virtual void enableEvents() = 0;
 
     virtual void disableEvents() = 0;
 
 	void showError(const std::string &message);
+
+	
 
 private:
     bool enabled = false;

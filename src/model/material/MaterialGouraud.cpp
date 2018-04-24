@@ -12,8 +12,11 @@ MaterialGouraud::MaterialGouraud() {
 }
 
 void MaterialGouraud::beginMaterial(vector<ofLight> lights) {
-	shader.setUniform3f("lightPosition", lights.at(0).getGlobalPosition() * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
 	shader.begin();
+	shader.setUniform3f("lightPosition", lights.at(0).getPosition());
+	shader.setUniform3f("colorSpecular", specular.r, specular.g, specular.b);
+	shader.setUniform3f("colorAmbient", ambient.r, ambient.g, ambient.b);
+	shader.setUniform3f("colorDiffuse", diffuse.r, diffuse.g, diffuse.b);
 }
 
 void MaterialGouraud::endMaterial() {
@@ -24,18 +27,15 @@ void MaterialGouraud::setEmissiveColor(ofColor color) {
 }
 
 void MaterialGouraud::setDiffuseColor(ofColor color) {
-	ofFloatColor col = color;
-	shader.setUniform3f("colorDiffuse", col.r, col.g, col.b);
+	this->diffuse = color;
 }
 
 void MaterialGouraud::setSpecularColor(ofColor color) {
-	ofFloatColor col = color;
-	shader.setUniform3f("colorSpecular", col.r, col.g, col.b);
+	this->specular = color;
 }
 
 void MaterialGouraud::setAmbientColor(ofColor color) {
-	ofFloatColor col = color;
-	shader.setUniform3f("colorAmbient", col.r, col.g, col.b);
+	this->ambient = color;
 }
 
 void MaterialGouraud::setShininess(float shininess) {}

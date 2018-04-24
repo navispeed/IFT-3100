@@ -149,11 +149,55 @@ void Model3dController::setupUI() {
 		tempSelection->at(0)->getMaterial().setEmissiveColor(e.color);
 	});
 
-	sliderShininess = guiMaterial->addSlider("Shininess", 0, 200,0);
+	sliderShininess = guiMaterial->addSlider("Shininess", 0, 128,0);
 	sliderShininess->onSliderEvent([&, tempSelection](ofxDatGuiSliderEvent e) {
 		tempSelection->at(0)->getMaterial().setShininess(e.value);
 	});
 
+
+	vector<string> materialName;
+	materialName.push_back("brass");
+	materialName.push_back("silver");
+	materialName.push_back("yellow rubber");
+
+	dropDownMaterialSample = guiMaterial->addDropdown("Material sample", materialName);
+	dropDownMaterialSample->onDropdownEvent([&, tempSelection](ofxDatGuiDropdownEvent e) {
+		switch (e.child)
+		{
+		case 0:
+		{
+			tempSelection->at(0)->getMaterial().setAmbientColor(ofFloatColor(0.329412, 0.223529, 0.027451));
+			tempSelection->at(0)->getMaterial().setDiffuseColor(ofFloatColor(0.780392, 0.568627, 0.113725));
+			tempSelection->at(0)->getMaterial().setSpecularColor(ofFloatColor(0.992157, 0.941176, 0.807843));
+			tempSelection->at(0)->getMaterial().setEmissiveColor(ofColor(0, 0, 0));
+			tempSelection->at(0)->getMaterial().setShininess(0.21794872 * 128);
+			this->changeGuiMat();
+			break;
+		}
+		case 1:
+		{
+			tempSelection->at(0)->getMaterial().setAmbientColor(ofFloatColor(0.19225, 0.19225, 0.19225));
+			tempSelection->at(0)->getMaterial().setDiffuseColor(ofFloatColor(0.50754, 0.50754, 0.50754));
+			tempSelection->at(0)->getMaterial().setSpecularColor(ofColor(0.508273, 0.508273, 0.508273));
+			tempSelection->at(0)->getMaterial().setEmissiveColor(ofColor(0, 0, 0));
+			tempSelection->at(0)->getMaterial().setShininess(0.4 * 128);
+			this->changeGuiMat();
+			break;
+		}
+		case 2:
+		{
+			tempSelection->at(0)->getMaterial().setAmbientColor(ofFloatColor(0.05, 0.05, 0.0));
+			tempSelection->at(0)->getMaterial().setDiffuseColor(ofFloatColor(0.5, 0.5, 0.4));
+			tempSelection->at(0)->getMaterial().setSpecularColor(ofFloatColor(0.7, 0.7, 0.04));
+			tempSelection->at(0)->getMaterial().setEmissiveColor(ofColor(0, 0, 0));	
+			tempSelection->at(0)->getMaterial().setShininess(.078125 * 128);
+			this->changeGuiMat();
+			break;
+		}
+		default:
+			break;
+		}
+	});
 	guiMaterial->setVisible(false);
 	
 }
@@ -177,12 +221,21 @@ void Model3dController::LightSelectorDropDownEvent(ofxDatGuiDropdownEvent e)
 	});
 
 	std::vector<string> lightType;
-	lightType.push_back("ambient");
 	lightType.push_back("point");
 	lightType.push_back("spot");
 	lightType.push_back("directional");
 
 	dropDownType = guiSelLight->addDropdown("Light type: ", lightType);
+	if (lights.at(lightSelected).getIsSpotlight()) {
+		dropDownType->select(LIGHTTYPE::SPOT);
+	}
+	else if (lights.at(lightSelected).getIsPointLight()) {
+		dropDownType->select(LIGHTTYPE::POINT);
+	}
+	else {
+		dropDownType->select(LIGHTTYPE::DIRECTIONAL);
+	}
+	
 	dropDownType->onDropdownEvent(this, &Model3dController::LightTypeDropDownEvent);
 
 	pickerDiffuseColor = guiSelLight->addColorPicker("Diffuse Color");
@@ -217,7 +270,7 @@ void Model3dController::LightSelectorDropDownEvent(ofxDatGuiDropdownEvent e)
 	});
 
 	guiSelLight->addLabel("Attenuation");
-	sliderAttenuation1 = guiSelLight->addSlider("linear",0,100,100);
+	sliderAttenuation1 = guiSelLight->addSlider("linear",1,100,100);
 	sliderAttenuation1->onSliderEvent([&, tempLights, ind](ofxDatGuiSliderEvent e) {
 		tempLights->at(ind).setAttenuation(e.value/100, tempLights->at(ind).getAttenuationLinear(), tempLights->at(ind).getAttenuationQuadratic());
 	});
@@ -239,21 +292,29 @@ void Model3dController::LightTypeDropDownEvent(ofxDatGuiDropdownEvent e) {
 		guiOptionLight->addLabel("Orientation");
 		sliderXOrientation= guiOptionLight->addSlider("X", -180, 180);
 		sliderXOrientation->setValue(light.getOrientationEuler().x);
-		sliderXOrientation->onSliderEvent([&, tempLights, ind](ofxDatGuiSliderEvent e) {
-			tempLights->at(ind).setOrientation(ofVec3f(e.value, light.getOrientationEuler().y, light.getOrientationEuler().z));
-		});
 
 		sliderYOrientation = guiOptionLight->addSlider("Y", -180, 180);
 		sliderYOrientation->setValue(light.getOrientationEuler().y);
-		sliderYOrientation->onSliderEvent([&, tempLights, ind](ofxDatGuiSliderEvent e) {
-			tempLights->at(ind).setOrientation(ofVec3f(light.getOrientationEuler().x,e.value, light.getOrientationEuler().z));
-		});
-
+		
 		sliderZOrientation = guiOptionLight->addSlider("Z", -180, 180);
 		sliderZOrientation->setValue(light.getOrientationEuler().z);
-		sliderZOrientation->onSliderEvent([&, tempLights, ind](ofxDatGuiSliderEvent e) {
-			tempLights->at(ind).setOrientation(ofVec3f(light.getOrientationEuler().x, light.getOrientationEuler().y, e.value ));
+		
+
+		ofxDatGuiSlider * x = sliderXOrientation;
+		ofxDatGuiSlider * y = sliderYOrientation;
+		ofxDatGuiSlider * z = sliderZOrientation;
+		sliderXOrientation->onSliderEvent([&, tempLights, ind, y, z](ofxDatGuiSliderEvent e) {
+			tempLights->at(ind).setOrientation(ofVec3f(e.value, y->getValue(), z->getValue()));
 		});
+
+		sliderYOrientation->onSliderEvent([&, tempLights, ind, x, z](ofxDatGuiSliderEvent e) {
+			tempLights->at(ind).setOrientation(ofVec3f(x->getValue(), e.value, z->getValue()));
+		});
+
+		sliderZOrientation->onSliderEvent([&, tempLights, ind, x, y](ofxDatGuiSliderEvent e) {
+			tempLights->at(ind).setOrientation(ofVec3f(x->getValue(), y->getValue(), e.value));
+		});
+
 
 		if (e.child == LIGHTTYPE::DIRECTIONAL) {
 			lights.at(ind).setDirectional();
@@ -346,10 +407,19 @@ void Model3dController::disableEvents() {
 	guiMaterial->setVisible(false);
 }
 
+bool Model3dController::hasKeyboardFocus()
+{
+	bool retour = guiSelLight != nullptr;
+	if (guiSelLight) {
+		retour &= textXCoord->getFocused() || textYCoord->getFocused() || textZCoord->getFocused();
+	}
+	return retour;
+}
+
 void Model3dController::onMousePressed(ofMouseEventArgs &evt) {
     const ofVec3f &args = this->cam.screenToWorld(evt);
 	if (touchInterface(ofPoint(evt.x,evt.y),gui) || touchInterface(ofPoint(evt.x,evt.y),guiSelLight) 
-		|| touchInterface(ofPoint(evt.x,evt.y),guiOptionLight)) {
+		|| touchInterface(ofPoint(evt.x,evt.y),guiOptionLight) || touchInterface(ofPoint(evt.x,evt.y),guiMaterial)) {
 		return;
 	}
     switch (formMode) {
@@ -366,9 +436,12 @@ void Model3dController::onMousePressed(ofMouseEventArgs &evt) {
 		case FormMode::LIGHT:
 			if (togglePlacement->getChecked()) {
 				lights.at(lightSelected).setPosition(args);
-				textXCoord->setText(to_string(lights.at(lightSelected).getPosition().x));
-				textYCoord->setText(to_string(lights.at(lightSelected).getPosition().y));
-				textZCoord->setText(to_string(lights.at(lightSelected).getPosition().z));
+				if (textXCoord != nullptr) {
+					textXCoord->setText(to_string(lights.at(lightSelected).getPosition().x));
+					textYCoord->setText(to_string(lights.at(lightSelected).getPosition().y));
+					textZCoord->setText(to_string(lights.at(lightSelected).getPosition().z));
+				}
+				
 			}
 			break;
         default: {

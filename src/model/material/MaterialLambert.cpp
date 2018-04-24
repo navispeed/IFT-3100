@@ -13,8 +13,10 @@ MaterialLambert::MaterialLambert() {
 }
 
 void MaterialLambert::beginMaterial(vector<ofLight> lights) {
-	shader.setUniform3f("lightPosition", lights.at(0).getGlobalPosition() * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
 	shader.begin();
+	shader.setUniform3f("lightPosition", lights.at(0).getGlobalPosition() * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+	shader.setUniform3f("colorDiffuse", diffuse.r, diffuse.g, diffuse.b);
+	shader.setUniform3f("colorAmbient", ambient.r, ambient.g, ambient.b);
 }
 
 void MaterialLambert::endMaterial() {
@@ -26,8 +28,7 @@ void MaterialLambert::setEmissiveColor(ofColor color) {
 }
 
 void MaterialLambert::setDiffuseColor(ofColor color) {
-	ofFloatColor col = color;
-	shader.setUniform3f("colorDiffuse", col.r, col.g, col.b);
+	diffuse = color;
 }
 
 void MaterialLambert::setSpecularColor(ofColor color) {
@@ -35,8 +36,7 @@ void MaterialLambert::setSpecularColor(ofColor color) {
 }
 
 void MaterialLambert::setAmbientColor(ofColor color) {
-	ofFloatColor col = color;
-	shader.setUniform3f("colorAmbient", col.r, col.g, col.b);
+	ambient = color;
 }
 
 void MaterialLambert::setShininess(float shininess) {}

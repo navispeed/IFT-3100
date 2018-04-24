@@ -14,8 +14,11 @@ MaterialPhong::MaterialPhong() {
 
 
 void MaterialPhong::beginMaterial(vector<ofLight> lights) {
-	shader.setUniform3f("lightPosition", lights.at(0).getGlobalPosition() * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
 	shader.begin();
+	shader.setUniform3f("lightPosition", lights.at(0).getGlobalPosition() * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+	shader.setUniform3f("colorDiffuse", diffuse.r, diffuse.g, diffuse.b);
+	shader.setUniform3f("colorAmbient", ambient.r, ambient.g, ambient.b);
+	shader.setUniform3f("colorSpecular", specular.r, specular.g, specular.b);
 }
 
 void MaterialPhong::endMaterial() {
@@ -25,18 +28,15 @@ void MaterialPhong::endMaterial() {
 void MaterialPhong::setEmissiveColor(ofColor color) {}
 
 void MaterialPhong::setDiffuseColor(ofColor color) {
-	ofFloatColor col = color;
-	shader.setUniform3f("colorDiffuse", col.r, col.g, col.b);
+	diffuse = color;
 }
 
 void MaterialPhong::setSpecularColor(ofColor color) {
-	ofFloatColor col = color;
-	shader.setUniform3f("colorSpecular", col.r, col.g, col.b);
+	specular = color;
 }
 
 void MaterialPhong::setAmbientColor(ofColor color) {
-	ofFloatColor col = color;
-	shader.setUniform3f("colorAmbient", col.r, col.g, col.b);
+	ambient = color;
 }
 
 void MaterialPhong::setShininess(float shininess) {}

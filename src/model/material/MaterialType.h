@@ -1,6 +1,10 @@
 #pragma once
 #include "ofMain.h"
 class MaterialType {
+protected:
+	ofFloatColor diffuse;
+	ofFloatColor ambient;
+	ofFloatColor specular;
 public:
 	virtual void beginMaterial(vector<ofLight> lights) = 0;
 
