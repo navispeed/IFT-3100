@@ -61,7 +61,7 @@ private:
 
 	const int LIGHTNUMBER = 8;
 	std::vector<ofLight> lights;
-	std::vector<bool> lightEnable;
+	std::map<int, ofLight*> lightsEnabled;
     std::vector<Object3d_Ptr> container;
     std::vector<Object3d_Ptr> selection;
     std::shared_ptr<ofVec3f> initialPoint = nullptr;

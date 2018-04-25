@@ -10,7 +10,7 @@ Primitive3d::Primitive3d(of3dPrimitive * primitive)
 	this->primitive = primitive;
 }
 
-void Primitive3d::drawObject(vector<ofLight> lights)
+void Primitive3d::drawObject(map<int, ofLight*>& lights)
 {
 
 	this->texture.bind();

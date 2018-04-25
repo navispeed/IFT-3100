@@ -6,7 +6,7 @@ private:
 public:
 	MaterialLambert();
 
-	void beginMaterial(vector<ofLight> lights) override;
+	void beginMaterial(map<int, ofLight*>& lights) override;
 
 	void endMaterial() override;
 

@@ -40,7 +40,6 @@ Model3dController::Model3dController() {
 
 	for (int i = 0; i < LIGHTNUMBER; i++) {
 		lights.push_back(ofLight());
-		lightEnable.push_back(false);
 	}
 
     this->cam = ofEasyCam();
@@ -212,12 +211,19 @@ void Model3dController::LightSelectorDropDownEvent(ofxDatGuiDropdownEvent e)
 	guiSelLight = new ofxDatGui(ofGetWidth() - gui->getWidth(), 10);
 	guiSelLight->setVisible(true);
 	guiSelLight->addLabel("Light: " + to_string(e.child));
-	toggleEnabled = guiSelLight->addToggle("enabled", lightEnable[e.child]);
-	vector<bool> * temp = &lightEnable;
+	toggleEnabled = guiSelLight->addToggle("enabled", lightsEnabled.end()!=lightsEnabled.find(e.child));
 	int ind = e.child;
+	map<int, ofLight*> * tempLight = &lightsEnabled;
 	vector<ofLight> * tempLights = &lights;
-	toggleEnabled->onToggleEvent([&,temp, ind](ofxDatGuiToggleEvent e) {
-		temp->at(ind) = toggleEnabled->getChecked();
+
+	toggleEnabled->onToggleEvent([&, ind,tempLight,tempLights](ofxDatGuiToggleEvent e) {
+		if (toggleEnabled->getChecked()) {
+			tempLight->insert(tempLight->begin(),std::pair<int,ofLight*>(ind, &tempLights->at(ind)));
+		}
+		else {
+			tempLight->erase(ind);
+		}
+		
 	});
 
 	std::vector<string> lightType;
@@ -338,10 +344,8 @@ shared_ptr<ofxAssimpModelLoader> Model3dController::loadModel(string path) {
 
 void Model3dController::draw() {
 	ofEnableLighting();
-	for (int i = 0; i < lights.size(); i++) {
-		if (lightEnable.at(i)) {
-			lights.at(i).enable();
-		}
+	for (auto it : lightsEnabled) {
+		it.second->enable();
 	}
 	ofEnableDepthTest();
     this->cam.begin();
@@ -354,16 +358,14 @@ void Model3dController::draw() {
     }
 
 	if (toggleVisible->getChecked()) {
-		for (int i = 0; i < lights.size(); i++) {
-			if (lightEnable.at(i)) {
-				lights.at(i).draw();
-			}
+		for (auto it : lightsEnabled) {
+			it.second->draw();
 		}
 	}
 	
 
     for (auto &it : container) {
-        it->drawObject(lights);
+        it->drawObject(lightsEnabled);
     }
 
 	
@@ -377,10 +379,8 @@ void Model3dController::draw() {
     }
     this->cam.end();
 	ofDisableDepthTest();
-	for (int i = 0; i < lights.size(); i++) {
-		if (lightEnable.at(i)) {
-			lights.at(i).disable();
-		}
+	for (auto it : lightsEnabled) {
+		it.second->disable();
 	}
 	ofDisableLighting();
 

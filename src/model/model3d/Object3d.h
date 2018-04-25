@@ -4,7 +4,7 @@
 
 class Object3d {
 public:
-	virtual void drawObject(vector<ofLight> lights) = 0;
+	virtual void drawObject(map<int, ofLight*>& lights) = 0;
 
 	virtual void rotate(float angle, ofVec3f axis) = 0;
 

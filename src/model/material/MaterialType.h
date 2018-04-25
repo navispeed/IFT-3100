@@ -5,8 +5,9 @@ protected:
 	ofFloatColor diffuse;
 	ofFloatColor ambient;
 	ofFloatColor specular;
+	ofFloatColor emissive;
 public:
-	virtual void beginMaterial(vector<ofLight> lights) = 0;
+	virtual void beginMaterial(map<int, ofLight*>& lights) = 0;
 
 	virtual void endMaterial() = 0;
 

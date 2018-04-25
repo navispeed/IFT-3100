@@ -12,7 +12,7 @@ Model3d::Model3d(ofxAssimpModelLoader * model,ofVec3f position)
 }
 
 
-void Model3d::drawObject(vector<ofLight> lights)
+void Model3d::drawObject(map<int, ofLight*>& lights)
 {
 	model->setPosition(position.x,position.y,position.z);
 	model->setScale(scale.x, scale.y, scale.z);

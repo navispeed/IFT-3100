@@ -14,7 +14,7 @@ enum class typeIllum:int {
 class Material {
 public:
 	
-	void beginMaterial(vector<ofLight> &lights);
+	void beginMaterial(map<int,ofLight*> &lights);
 	void endMaterial();
 	void changeMaterialType(typeIllum type);
 

@@ -1,6 +1,6 @@
 #include "Material.h"
 
-void Material::beginMaterial(vector<ofLight> &lights) {
+void Material::beginMaterial(map<int, ofLight*>& lights) {
 	material->beginMaterial(lights);
 }
 
