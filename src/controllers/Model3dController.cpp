@@ -262,17 +262,31 @@ void Model3dController::LightSelectorDropDownEvent(ofxDatGuiDropdownEvent e)
 
 	guiSelLight->addLabel("Position");
 	textXCoord = guiSelLight->addTextInput("X", to_string(lights[e.child].getPosition().x));
-	
 	textXCoord->onTextInputEvent([&, tempLights, ind](ofxDatGuiTextInputEvent e) {
-		tempLights->at(ind).setPosition(stof(e.text), tempLights->at(ind).getPosition().y, tempLights->at(ind).getPosition().z);
+		try{
+			tempLights->at(ind).setPosition(stof(e.text), tempLights->at(ind).getPosition().y, tempLights->at(ind).getPosition().z);
+		}
+		catch (exception exception) {
+			
+		}
 	});
 	textYCoord = guiSelLight->addTextInput("y", to_string(tempLights->at(ind).getPosition().y));
 	textYCoord->onTextInputEvent([&, tempLights, ind](ofxDatGuiTextInputEvent e) {
-		tempLights->at(ind).setPosition(tempLights->at(ind).getPosition().x, stof(e.text), tempLights->at(ind).getPosition().z);
+		try {
+			tempLights->at(ind).setPosition(tempLights->at(ind).getPosition().x, stof(e.text), tempLights->at(ind).getPosition().z);
+		}
+		catch (exception exception) {
+
+		}
 	});
 	textZCoord = guiSelLight->addTextInput("Z", to_string(tempLights->at(ind).getPosition().z));
 	textZCoord->onTextInputEvent([&, tempLights, ind](ofxDatGuiTextInputEvent e) {
-		tempLights->at(ind).setPosition(tempLights->at(ind).getPosition().x, tempLights->at(ind).getPosition().y, stof(e.text));
+		try {
+			tempLights->at(ind).setPosition(tempLights->at(ind).getPosition().x, tempLights->at(ind).getPosition().y, stof(e.text));
+		}
+		catch (exception exception) {
+
+		}
 	});
 
 	guiSelLight->addLabel("Attenuation");
@@ -310,17 +324,16 @@ void Model3dController::LightTypeDropDownEvent(ofxDatGuiDropdownEvent e) {
 		ofxDatGuiSlider * y = sliderYOrientation;
 		ofxDatGuiSlider * z = sliderZOrientation;
 		sliderXOrientation->onSliderEvent([&, tempLights, ind, y, z](ofxDatGuiSliderEvent e) {
-			tempLights->at(ind).setOrientation(ofVec3f(e.value, y->getValue(), z->getValue()));
+				tempLights->at(ind).setOrientation(ofVec3f(e.value, y->getValue(), z->getValue())); \
 		});
 
 		sliderYOrientation->onSliderEvent([&, tempLights, ind, x, z](ofxDatGuiSliderEvent e) {
-			tempLights->at(ind).setOrientation(ofVec3f(x->getValue(), e.value, z->getValue()));
+				tempLights->at(ind).setOrientation(ofVec3f(x->getValue(), e.value, z->getValue()));
 		});
 
 		sliderZOrientation->onSliderEvent([&, tempLights, ind, x, y](ofxDatGuiSliderEvent e) {
-			tempLights->at(ind).setOrientation(ofVec3f(x->getValue(), y->getValue(), e.value));
+				tempLights->at(ind).setOrientation(ofVec3f(x->getValue(), y->getValue(), e.value));
 		});
-
 
 		if (e.child == LIGHTTYPE::DIRECTIONAL) {
 			lights.at(ind).setDirectional();
@@ -328,6 +341,17 @@ void Model3dController::LightTypeDropDownEvent(ofxDatGuiDropdownEvent e) {
 
 		else {
 			lights.at(ind).setSpotlight();
+			sliderCutoff = guiOptionLight->addSlider("Cutoff", 0, 90);
+			sliderCutoff->setValue(light.getSpotlightCutOff());
+			sliderConcentration = guiOptionLight->addSlider("Concentraiton", 0, 128);
+			sliderConcentration->setValue(light.getSpotConcentration());
+
+			sliderCutoff->onSliderEvent([&, tempLights, ind](ofxDatGuiSliderEvent e) {
+				tempLights->at(ind).setSpotlightCutOff(e.value);
+			});
+			sliderConcentration->onSliderEvent([&, tempLights, ind](ofxDatGuiSliderEvent e) {
+				tempLights->at(ind).setSpotConcentration(e.value);
+			});
 		}
 	}
 	

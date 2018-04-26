@@ -103,6 +103,8 @@ private:
 	ofxDatGuiSlider *sliderXOrientation = nullptr;
 	ofxDatGuiSlider *sliderYOrientation = nullptr;
 	ofxDatGuiSlider *sliderZOrientation = nullptr;
+	ofxDatGuiSlider *sliderConcentration = nullptr;
+	ofxDatGuiSlider *sliderCutoff = nullptr;
 	
 	//material gui
 	ofxDatGui *guiMaterial = nullptr;
