@@ -35,6 +35,7 @@ public:
 		SIERPINSKI = 115,
 		HERMIT = 104,
 		BEZIER = 98,
+		CATMULL_ROM = 100
     };
     static const std::map<int, const char *> stateToString;
 
@@ -93,6 +94,8 @@ private:
 	void drawHermitFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
 
 	void drawBezierFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
+
+	void drawCatmullRomFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
 
     void drawPolygon(const ofColor &color, const vector<ofVec2f> &pointList);
 
