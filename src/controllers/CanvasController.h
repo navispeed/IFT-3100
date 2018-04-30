@@ -22,16 +22,20 @@
 
 class CanvasController : public AController {
     const ofColor defColor = ofColor(255, 255, 255);
+	const int sample = 100;
 public:
-    enum STATE : int {
-        NONE = 127,
-        CIRCLE = 99,
-        LINE = 108,
-        POLYGONE = 112,
-        RECTANGLE = 114,
-        TRIANGLE = 116,
-        REC_TREE = 121,
-        SIERPINSKI = 115,
+	enum STATE : int {
+		NONE = 127,
+		CIRCLE = 99,
+		LINE = 108,
+		POLYGONE = 112,
+		RECTANGLE = 114,
+		TRIANGLE = 116,
+		REC_TREE = 121,
+		SIERPINSKI = 115,
+		HERMIT = 104,
+		BEZIER = 98,
+		CATMULL_ROM = 100
     };
     static const std::map<int, const char *> stateToString;
 
@@ -86,6 +90,12 @@ private:
     void drawRectangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
 
     void drawTriangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
+
+	void drawHermitFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
+
+	void drawBezierFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
+
+	void drawCatmullRomFromPoint(const ofColor &color, const vector<ofVec2f> &pointList);
 
     void drawPolygon(const ofColor &color, const vector<ofVec2f> &pointList);
 

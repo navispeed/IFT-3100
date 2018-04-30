@@ -17,3 +17,7 @@ void AController::showError(const std::string &message)
 {
 	ofSystemAlertDialog(message);
 }
+
+bool AController::hasKeyboardFocus() {
+	return false;
+}

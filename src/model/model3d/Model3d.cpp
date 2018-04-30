@@ -12,14 +12,16 @@ Model3d::Model3d(ofxAssimpModelLoader * model,ofVec3f position)
 }
 
 
-void Model3d::drawObject()
+void Model3d::drawObject(map<int, ofLight*>& lights)
 {
 	model->setPosition(position.x,position.y,position.z);
 	model->setScale(scale.x, scale.y, scale.z);
 	model->setRotation(0, angleX, 1, 0, 0);
 	model->setRotation(1, angleY, 0, 1, 0);
 	model->setRotation(2, angleZ, 0, 0, 1);
+	this->material.beginMaterial(lights);
 	model->draw(OF_MESH_FILL);
+	this->material.endMaterial();
 }
 
 void Model3d::rotate(float angle, ofVec3f axis)
@@ -83,5 +85,9 @@ void Model3d::setTexture(ofImage texture)
 
 ofNode *Model3d::getAsOfNode() {
 	return nullptr;
+}
+
+Material &Model3d::getMaterial() {
+	return this->material;
 }
 

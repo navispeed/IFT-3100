@@ -2,7 +2,7 @@
 // Created by Grégoire GUEMAS on 18-03-22.
 //
 
-#import <ofGraphics.h>
+#include <ofGraphics.h>
 #include "PortalCursor.h"
 
 PortalCursor::PortalCursor() {

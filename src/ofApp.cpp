@@ -22,7 +22,10 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
-    auto old = this->controller;
+	if (controller->hasKeyboardFocus()) {
+		return;
+	}
+	auto old = this->controller;
     switch (key) {
         case 49:
             std::cout << "Controller Picture" << std::endl;
