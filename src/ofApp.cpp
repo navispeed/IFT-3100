@@ -37,7 +37,12 @@ void ofApp::keyPressed(int key) {
         case 51:
             std::cout << "Controller 3D" << std::endl;
             this->pManager->setDefaultCursor();
-			this->controller = ControllerFactory::getModel3dController();
+            this->controller = ControllerFactory::getModel3dController();
+            break;
+        case 52:
+            std::cout << "Controller Demo" << std::endl;
+            this->pManager->setDefaultCursor();
+            this->controller = ControllerFactory::getDemoController();
             break;
         default:
             return;

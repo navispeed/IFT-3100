@@ -10,15 +10,19 @@
 #include "CanvasController.h"
 #include "PictureController.h"
 #include "Model3dController.h"
+#include "DemoController.h"
 
 class ControllerFactory {
 private:
     static void init(AController *);
+	template<class T>
+	static T* get();
 public:
     static AController* getDefaultController();
     static CanvasController* getCanvasController();
     static PictureController* getPictureController();
 	static Model3dController * getModel3dController();
+	static DemoController * getDemoController();
 };
 
 
