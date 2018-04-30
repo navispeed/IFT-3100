@@ -24,6 +24,8 @@ const std::map<int, const char *> CanvasController::stateToString = {
         {STATE::TRIANGLE,   "Triangle"},
         {STATE::REC_TREE,   "Recursive Tree"},
         {STATE::SIERPINSKI, "Sierpinski"},
+		{STATE::HERMIT,		"Hermit"},
+		{STATE::BEZIER,		"Bezier"}
 };
 
 CanvasController::CanvasController()
@@ -253,6 +255,20 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
             this->pointList.clear();
             DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
         }
+		case HERMIT: {
+			LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 4,
+				showError("An Hermit curve needs exactly 4 point to be draw !"))
+			drawHermitFromPoint(this->drawOption->getFillColor(), this->pointList);
+			this->pointList.clear();
+			break;
+		}
+		case BEZIER: {
+			LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 4,
+				showError("An Bezier curve needs exactly 4 point to be draw !"))
+			drawBezierFromPoint(this->drawOption->getFillColor(), this->pointList);
+			this->pointList.clear();
+			break;
+		}
         case ' ': { //Save
             auto image = this->getCanvas()->getCapture();
             ControllerFactory::getPictureController()->addImage(image);
@@ -332,6 +348,58 @@ void CanvasController::drawTriangleFromPoint(const ofColor &color, const vector<
     this->otherObject.push_back(drawIt(x, true));
     auto redoFunction = [color, vec, this]() { this->drawTriangleFromPoint(color, vec); };
     DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
+}
+
+void CanvasController::drawHermitFromPoint(const ofColor & color, const vector<ofVec2f>& pointList)
+{
+	auto vec = pointList;
+	ofPolyline hermitCurve;
+	ofVec2f position;
+
+	for (int i = 0; i <= sample; ++i) {
+		float t = i / (float)sample;
+
+		position.x = (2 * pow(t, 3) - 3 * pow(t, 2) + 1) * vec[0].x + (pow(t, 3) - 2 * pow(t, 2) + t) * vec[1].x + (pow(t, 3) - pow(t, 2)) * vec[2].x + (-2 * pow(t, 3) + 3 * pow(t, 2)) * vec[3].x;
+		position.y = (2 * pow(t, 3) - 3 * pow(t, 2) + 1) * vec[0].y + (pow(t, 3) - 2 * pow(t, 2) + t) * vec[1].y + (pow(t, 3) - pow(t, 2)) * vec[2].y + (-2 * pow(t, 3) + 3 * pow(t, 2)) * vec[3].y;
+
+		hermitCurve.addVertex(position);
+	}
+
+	hermitCurve.draw();
+	this->otherObject.push_back([hermitCurve, color]() {
+		ofSetColor(color);
+		ofSetLineWidth(8.0f);
+		hermitCurve.draw();
+	});
+	auto redoFunction = [color, pointList, this]() {this->drawHermitFromPoint(color, pointList); };
+	DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
+}
+
+void CanvasController::drawBezierFromPoint(const ofColor & color, const vector<ofVec2f>& pointList)
+{
+	auto vec = pointList;
+	ofPolyline bezierCurve;
+	ofVec2f position;
+
+	for (int i = 0; i <= sample; ++i) {
+
+		float t = i / (float)sample;
+		float u = 1 - t;
+
+		position.x = pow(u, 3) * vec[0].x + 3 * pow(u, 2) * t * vec[1].x + 3 * u * pow(t, 2) * vec[2].x + pow(t, 3) * vec[3].x;
+		position.y = pow(u, 3) * vec[0].y + 3 * pow(u, 2) * t * vec[1].y + 3 * u * pow(t, 2) * vec[2].y + pow(t, 3) * vec[3].y;
+
+		bezierCurve.addVertex(position);
+	}
+
+	bezierCurve.draw();
+	this->otherObject.push_back([bezierCurve, color](){
+		ofSetColor(color);
+		ofSetLineWidth(8.0f);
+		bezierCurve.draw();
+	});
+	auto redoFunction = [color, pointList, this]() {this->drawBezierFromPoint(color, pointList); };
+	DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
 }
 
 void CanvasController::drawRectangleFromPoint(const ofColor &color, const vector<ofVec2f> &pointList) {
