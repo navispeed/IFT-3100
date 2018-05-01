@@ -373,10 +373,16 @@ void CanvasController::drawHermitFromPoint(const ofColor & color, const vector<o
 		hermitCurve.addVertex(position);
 	}
 
-	this->otherObject.push_back([hermitCurve, color]() {
+	this->otherObject.push_back([hermitCurve, color, pointList]() {
 		ofSetColor(color);
 		ofSetLineWidth(8.0f);
 		hermitCurve.draw();
+		auto radius = 12.0f;
+		ofSetColor(0, 0, 197);
+		for each (auto vec in pointList)
+		{
+			ofDrawEllipse(vec, radius, radius);
+		}
 	});
 	auto redoFunction = [color, pointList, this]() {this->drawHermitFromPoint(color, pointList); };
 	DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
@@ -407,10 +413,16 @@ void CanvasController::drawBezierFromPoint(const ofColor & color, const vector<o
 		bezierCurve.addVertex(position);
 	}
 
-	this->otherObject.push_back([bezierCurve, color](){
+	this->otherObject.push_back([bezierCurve, color, pointList](){
 		ofSetColor(color);
 		ofSetLineWidth(8.0f);
 		bezierCurve.draw();
+		auto radius = 12.0f;
+		ofSetColor(0, 0, 197);
+		for each (auto vec in pointList)
+		{
+			ofDrawEllipse(vec, radius, radius);
+		}
 	});
 	auto redoFunction = [color, pointList, this]() {this->drawBezierFromPoint(color, pointList); };
 	DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
@@ -440,10 +452,16 @@ void CanvasController::drawCatmullRomFromPoint(const ofColor & color, const vect
 		}
 	}
 
-	this->otherObject.push_back([catmullRomCurve, color, vec]() {
+	this->otherObject.push_back([catmullRomCurve, color, pointList]() {
 		ofSetColor(color);
 		ofSetLineWidth(8.0f);
 		catmullRomCurve.draw();
+		auto radius = 12.0f;
+		ofSetColor(0, 0, 197);
+		for each (auto vec in pointList)
+		{
+			ofDrawEllipse(vec, radius, radius);
+		}
 	});
 	auto redoFunction = [color, pointList, this]() {this->drawCatmullRomFromPoint(color, pointList); };
 	DEFINE_UNDO_REDO_CONTAINER(this->history, this->otherObject, redoFunction);
