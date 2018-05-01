@@ -264,8 +264,8 @@ void CanvasController::onKeyRelease(ofKeyEventArgs &evt) {
 			break;
 		}
 		case BEZIER: {
-			LIST_CONTAIN_0_ELEMENT(this->pointList.size() != 4,
-				showError("An Bezier curve needs exactly 4 point to be draw !"))
+			LIST_CONTAIN_0_ELEMENT((this->pointList.size() != 4 && this->pointList.size() != 3),
+				showError("An Bezier curve needs exactly 3 or 4 point to be draw !"))
 			drawBezierFromPoint(this->drawOption->getFillColor(), this->pointList);
 			this->pointList.clear();
 			break;
@@ -387,14 +387,22 @@ void CanvasController::drawBezierFromPoint(const ofColor & color, const vector<o
 	auto vec = pointList;
 	ofPolyline bezierCurve;
 	ofVec2f position;
+	auto size = vec.size();
 
 	for (int i = 0; i <= sample; ++i) {
 
 		float t = i / (float)sample;
 		float u = 1 - t;
 
-		position.x = pow(u, 3) * vec[0].x + 3 * pow(u, 2) * t * vec[1].x + 3 * u * pow(t, 2) * vec[2].x + pow(t, 3) * vec[3].x;
-		position.y = pow(u, 3) * vec[0].y + 3 * pow(u, 2) * t * vec[1].y + 3 * u * pow(t, 2) * vec[2].y + pow(t, 3) * vec[3].y;
+		if (size == 4) {
+			position.x = pow(u, 3) * vec[0].x + 3 * pow(u, 2) * t * vec[1].x + 3 * u * pow(t, 2) * vec[2].x + pow(t, 3) * vec[3].x;
+			position.y = pow(u, 3) * vec[0].y + 3 * pow(u, 2) * t * vec[1].y + 3 * u * pow(t, 2) * vec[2].y + pow(t, 3) * vec[3].y;
+		}
+		else {
+			position.x = (1 - 2 * t + pow(t, 2)) * vec[0].x + (2 * t - 2 * pow(t, 2)) * vec[1].x + pow(t, 2) * vec[2].x;
+			position.y = (1 - 2 * t + pow(t, 2)) * vec[0].y + (2 * t - 2 * pow(t, 2)) * vec[1].y + pow(t, 2) * vec[2].y;
+		}
+		
 
 		bezierCurve.addVertex(position);
 	}
