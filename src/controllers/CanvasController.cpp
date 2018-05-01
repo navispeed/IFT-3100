@@ -367,8 +367,14 @@ void CanvasController::drawHermitFromPoint(const ofColor & color, const vector<o
 	for (int i = 0; i <= sample; ++i) {
 		float t = i / (float)sample;
 
-		position.x = (2 * pow(t, 3) - 3 * pow(t, 2) + 1) * vec[0].x + (pow(t, 3) - 2 * pow(t, 2) + t) * vec[1].x + (pow(t, 3) - pow(t, 2)) * vec[2].x + (-2 * pow(t, 3) + 3 * pow(t, 2)) * vec[3].x;
-		position.y = (2 * pow(t, 3) - 3 * pow(t, 2) + 1) * vec[0].y + (pow(t, 3) - 2 * pow(t, 2) + t) * vec[1].y + (pow(t, 3) - pow(t, 2)) * vec[2].y + (-2 * pow(t, 3) + 3 * pow(t, 2)) * vec[3].y;
+		position.x = (2 * pow(t, 3) - 3 * pow(t, 2) + 1) * vec[0].x +
+			(pow(t, 3) - 2 * pow(t, 2) + t) * vec[1].x +
+			(pow(t, 3) - pow(t, 2)) * vec[2].x +
+			(-2 * pow(t, 3) + 3 * pow(t, 2)) * vec[3].x;
+		position.y = (2 * pow(t, 3) - 3 * pow(t, 2) + 1) * vec[0].y +
+			(pow(t, 3) - 2 * pow(t, 2) + t) * vec[1].y +
+			(pow(t, 3) - pow(t, 2)) * vec[2].y +
+			(-2 * pow(t, 3) + 3 * pow(t, 2)) * vec[3].y;
 
 		hermitCurve.addVertex(position);
 	}
