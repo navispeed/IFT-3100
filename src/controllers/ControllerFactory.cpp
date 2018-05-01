@@ -6,23 +6,27 @@ AController *ControllerFactory::getDefaultController() {
 }
 
 CanvasController *ControllerFactory::getCanvasController() {
-    static auto instance = new CanvasController();
-    init(instance);
-    return instance;
+    return get<CanvasController>();
 }
 
 PictureController *ControllerFactory::getPictureController() {
-    static auto instance = new PictureController();
-    init(instance);
-    return instance;
+    return get<PictureController>();
 }
 
 Model3dController *ControllerFactory::getModel3dController() {
-	static auto instance = new Model3dController();
-	init(instance);
-	return instance;
+    return get<Model3dController>();
+}
+
+DemoController *ControllerFactory::getDemoController() {
+    return get<DemoController>();
 }
 
 void ControllerFactory::init(AController *controller) {
 
+}
+
+template<class T>
+T *ControllerFactory::get() {
+    static AController* instance = new T();
+    return dynamic_cast<T *>(instance);
 }
